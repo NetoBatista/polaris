@@ -35,13 +35,23 @@ namespace Polaris.Service
 
         public async Task<ResponseBaseModel> Get(UserGetRequestDTO request)
         {
-            var entity = new User { Email = request.Email };
-            var response = await _userRepository.Get(entity);
-            if (response == null)
+            List<UserResponseDTO> response = [];
+            if (!string.IsNullOrEmpty(request.Email))
             {
-                return ResponseBaseModel.Ok();
+                var entity = new User { Email = request.Email };
+                var users = await _userRepository.Get(entity);
+                if (users != null)
+                {
+                    response.Add(UserMapper.ToResponseDTO(users));
+                }
             }
-            return ResponseBaseModel.Ok(UserMapper.ToResponseDTO(response));
+            else
+            {
+                var users = await _userRepository.Get();
+                response.AddRange(users.Select(UserMapper.ToResponseDTO));
+            }
+
+            return ResponseBaseModel.Ok(response);
         }
 
         public async Task<ResponseBaseModel> Remove(UserRemoveRequestDTO request)

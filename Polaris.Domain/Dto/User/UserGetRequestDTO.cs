@@ -2,6 +2,6 @@
 {
     public class UserGetRequestDTO
     {
-        public string Email { get; set; } = null!;
+        public string Email { get; set; } = string.Empty;
     }
 }
