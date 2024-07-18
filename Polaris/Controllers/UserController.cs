@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using Polaris.Domain.Dto.User;
 using Polaris.Domain.Interface.Service;
 using Polaris.Extension;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Polaris.Controllers
 {
@@ -23,7 +23,7 @@ namespace Polaris.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<UserResponseDTO>> Get([FromQuery] UserGetRequestDTO request)
+        public async Task<ActionResult<List<UserResponseDTO>>> Get([FromQuery] UserGetRequestDTO request)
         {
             var response = await _userService.Get(request);
             return ToObjectResult(response);

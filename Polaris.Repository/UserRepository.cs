@@ -1,6 +1,6 @@
-﻿using Polaris.Domain.Entity;
+﻿using Microsoft.EntityFrameworkCore;
+using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
-using Microsoft.EntityFrameworkCore;
 
 namespace Polaris.Repository
 {
@@ -32,6 +32,11 @@ namespace Polaris.Repository
         public Task<User?> Get(User user)
         {
             return _context.User.FirstOrDefaultAsync(x => x.Email.ToUpper() == user.Email.ToUpper());
+        }
+
+        public Task<List<User>> Get()
+        {
+            return _context.User.OrderBy(x => x.Email).ToListAsync();
         }
 
         public Task<bool> Exists(User user)
