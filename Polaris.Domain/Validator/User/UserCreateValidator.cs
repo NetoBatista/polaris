@@ -1,6 +1,8 @@
 ﻿using Polaris.Domain.Constant;
 using Polaris.Domain.Dto.User;
+using Polaris.Domain.Interface.Repository;
 using Polaris.Domain.Interface.Validator;
+using Polaris.Domain.Mapper;
 using Polaris.Domain.Model;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,14 +12,30 @@ namespace Polaris.Domain.Validator.Application
     {
         private ValidatorResultModel _resultModel = new();
         private UserCreateRequestDTO _instance = new();
+        private IUserRepository _userRepository;
+
+        public UserCreateValidator(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
 
         public ValidatorResultModel Validate(UserCreateRequestDTO request)
         {
             _instance = request;
+            UserAlreadyCreatedValidate();
             NameValidate();
             EmailValidate();
             LanguageValidate();
             return _resultModel;
+        }
+
+        private void UserAlreadyCreatedValidate()
+        {
+            var alreadyCreated = _userRepository.AlreadyCreated(UserMapper.ToEntity(_instance)).Result;
+            if (alreadyCreated)
+            {
+                _resultModel.Errors.Add("User already created");
+            }
         }
 
         private void NameValidate()

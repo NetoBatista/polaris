@@ -19,11 +19,6 @@ namespace Polaris.Repository
 
         public async Task<User> Create(User user)
         {
-            var entity = await _context.User.FirstOrDefaultAsync(x => x.Id == user.Id || x.Email.ToUpper() == user.Email.ToUpper());
-            if (entity != null)
-            {
-                return entity;
-            }
             await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;
