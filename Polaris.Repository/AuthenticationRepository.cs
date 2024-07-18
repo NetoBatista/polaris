@@ -1,8 +1,8 @@
-﻿using Polaris.Domain.Constant;
+﻿using Microsoft.EntityFrameworkCore;
+using Polaris.Domain.Constant;
 using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
 using Polaris.Domain.Model;
-using Microsoft.EntityFrameworkCore;
 
 namespace Polaris.Repository
 {
@@ -139,7 +139,7 @@ namespace Polaris.Repository
         {
             var response = string.Empty;
             var random = new Random();
-            while (response.Length != 7)
+            while (response.Length != 6)
             {
                 response += random.Next(1, 9);
             }
