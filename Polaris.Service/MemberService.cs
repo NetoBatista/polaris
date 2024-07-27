@@ -63,6 +63,11 @@ namespace Polaris.Service
             var entity = new Member { UserId = request.UserId };
             var response = await _memberRepository.Get(entity);
 
+            if (response.Count == 0)
+            {
+                return ResponseBaseModel.Ok();
+            }
+
             MemberUserResponseDTO member = new();
 
             foreach (var item in response.GroupBy(x => x.UserId))
@@ -88,6 +93,10 @@ namespace Polaris.Service
         {
             var entity = new Member { ApplicationId = request.ApplicationId };
             var response = await _memberRepository.Get(entity);
+            if (response.Count == 0)
+            {
+                return ResponseBaseModel.Ok();
+            }
 
             var members = new List<MemberApplicationResponseDTO>();
             List<Guid> applications = [];

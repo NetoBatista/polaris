@@ -1,8 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using Polaris.Domain.Dto.Member;
-using Polaris.Domain.Dto.User;
 using Polaris.Domain.Interface.Service;
 using Polaris.Extension;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Polaris.Controllers
 {
@@ -24,7 +23,7 @@ namespace Polaris.Controllers
         }
 
         [HttpGet("{applicationId}/Application")]
-        public async Task<ActionResult<UserResponseDTO>> GetByApplication(Guid applicationId)
+        public async Task<ActionResult<MemberApplicationResponseDTO>> GetByApplication(Guid applicationId)
         {
             var request = new MemberGetApplicationRequestDTO { ApplicationId = applicationId };
             var response = await _memberService.GetByApplication(request);
@@ -32,7 +31,7 @@ namespace Polaris.Controllers
         }
 
         [HttpGet("{userId}/User")]
-        public async Task<ActionResult<UserResponseDTO>> GetByUser(Guid userId)
+        public async Task<ActionResult<MemberUserResponseDTO>> GetByUser(Guid userId)
         {
             var request = new MemberGetUserRequestDTO { UserId = userId };
             var response = await _memberService.GetByUser(request);
