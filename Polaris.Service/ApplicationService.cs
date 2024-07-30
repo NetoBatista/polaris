@@ -23,6 +23,7 @@ namespace Polaris.Service
             _updateValidator = updateValidator;
             _removeValidator = removeValidator;
         }
+
         public async Task<ResponseBaseModel> Create(ApplicationCreateRequestDTO request)
         {
             var responseValidate = _createValidator.Validate(request);
@@ -44,10 +45,6 @@ namespace Polaris.Service
             }
             var entity = ApplicationMapper.ToEntity(request);
             var response = await _applicationRepository.Update(entity);
-            if (response == null)
-            {
-                return ResponseBaseModel.BadRequest("Application not found");
-            }
             return ResponseBaseModel.Ok(ApplicationMapper.ToResponseDTO(response));
         }
 
@@ -59,11 +56,7 @@ namespace Polaris.Service
                 return ResponseBaseModel.BadRequest(responseValidate.Errors);
             }
             var entity = ApplicationMapper.ToEntity(request);
-            var response = await _applicationRepository.Remove(entity);
-            if (!response)
-            {
-                return ResponseBaseModel.BadRequest("Application not found");
-            }
+            await _applicationRepository.Remove(entity);
             return ResponseBaseModel.Ok();
         }
 

@@ -19,13 +19,9 @@ namespace Polaris.Repository
             return application;
         }
 
-        public async Task<Application?> Update(Application application)
+        public async Task<Application> Update(Application application)
         {
-            var entity = await _context.Application.AsNoTracking().FirstOrDefaultAsync(x => x.Id == application.Id);
-            if (entity == null)
-            {
-                return null;
-            }
+            var entity = await _context.Application.AsNoTracking().FirstAsync(x => x.Id == application.Id);
             entity.Name = application.Name;
             _context.Update(entity);
             await _context.SaveChangesAsync();
@@ -34,11 +30,7 @@ namespace Polaris.Repository
 
         public async Task<bool> Remove(Application application)
         {
-            var entity = await _context.Application.AsNoTracking().FirstOrDefaultAsync(x => x.Id == application.Id);
-            if (entity == null)
-            {
-                return false;
-            }
+            var entity = await _context.Application.AsNoTracking().FirstAsync(x => x.Id == application.Id);
             _context.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
@@ -51,8 +43,12 @@ namespace Polaris.Repository
 
         public Task<bool> Exists(Application application)
         {
-            return _context.Application.AnyAsync(x => x.Id == application.Id ||
-                                                      (x.Name.ToUpper() == application.Name.ToUpper() && x.Id != application.Id));
+            return _context.Application.AnyAsync(x => x.Id == application.Id || x.Name.ToUpper() == application.Name.ToUpper());
+        }
+
+        public Task<bool> NameAlreadyExists(Application application)
+        {
+            return _context.Application.AnyAsync(x => x.Id != application.Id && x.Name.ToUpper() == application.Name.ToUpper());
         }
 
         public Task<bool> AnyMember(Application application)

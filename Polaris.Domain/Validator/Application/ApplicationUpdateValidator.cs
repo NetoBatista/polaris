@@ -27,16 +27,24 @@ namespace Polaris.Domain.Validator.Application
 
         private void NameValidate()
         {
-            if (string.IsNullOrEmpty(_instance.Name) || _instance.Name.Length < 3)
+            if (string.IsNullOrEmpty(_instance.Name))
+            {
+                _resultModel.Errors.Add("Name is required");
+            }
+            else if (_instance.Name.Length < 3)
             {
                 _resultModel.Errors.Add("Name must have at least 3 characters");
+            }
+            else if (_instance.Name.Length > 256)
+            {
+                _resultModel.Errors.Add("Name cannot be longer than 256 characters");
             }
         }
 
         private void AlreadyCreatedValidate()
         {
             var entity = ApplicationMapper.ToEntity(_instance);
-            var response = _applicationRepository.Exists(entity).Result;
+            var response = _applicationRepository.NameAlreadyExists(entity).Result;
             if (response)
             {
                 _resultModel.Errors.Add($"There is already an application with name: {_instance.Name}");

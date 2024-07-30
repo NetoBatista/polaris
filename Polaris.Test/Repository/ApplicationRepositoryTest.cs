@@ -1,13 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Polaris.Domain.Entity;
-using Polaris.Domain.Interface.Repository;
 using Polaris.Repository;
 using Polaris.Test.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Polaris.Test.Repository
 {
@@ -63,8 +57,7 @@ namespace Polaris.Test.Repository
                 Id = Guid.NewGuid(),
                 Name = Guid.NewGuid().ToString()
             };
-            entity = await _repository.Update(entity);
-            Assert.IsNull(entity);
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _repository.Update(entity));
         }
 
         [TestMethod("Should be able remove")]
@@ -84,15 +77,14 @@ namespace Polaris.Test.Repository
                 Id = Guid.NewGuid(),
                 Name = Guid.NewGuid().ToString()
             };
-            var removed = await _repository.Remove(entity);
-            Assert.IsTrue(!removed);
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _repository.Remove(entity));
         }
 
         [TestMethod("Should be able get all")]
         public async Task GetAll()
         {
             var countEntities = 2;
-            for(var index =0; index < countEntities; index++)
+            for (var index = 0; index < countEntities; index++)
             {
                 await CreateMockApplication();
             }
@@ -133,7 +125,7 @@ namespace Polaris.Test.Repository
                 Name = Guid.NewGuid().ToString(),
                 MemberNavigation = new List<Member>
                 {
-                    new Member 
+                    new Member
                     {
                         UserId = Guid.NewGuid()
                     }
