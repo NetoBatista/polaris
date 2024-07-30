@@ -1,6 +1,6 @@
-﻿using Polaris.Domain.Entity;
+﻿using Microsoft.EntityFrameworkCore;
+using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
-using Microsoft.EntityFrameworkCore;
 
 namespace Polaris.Repository
 {
@@ -21,26 +21,19 @@ namespace Polaris.Repository
 
         public async Task<Application> Update(Application application)
         {
-            var entity = await _context.Application.AsNoTracking().FirstOrDefaultAsync(x => x.Id == application.Id);
-            if (entity == null)
-            {
-                return application;
-            }
+            var entity = await _context.Application.AsNoTracking().FirstAsync(x => x.Id == application.Id);
             entity.Name = application.Name;
             _context.Update(entity);
             await _context.SaveChangesAsync();
             return entity;
         }
 
-        public async Task Remove(Application application)
+        public async Task<bool> Remove(Application application)
         {
-            var entity = await _context.Application.AsNoTracking().FirstOrDefaultAsync(x => x.Id == application.Id);
-            if (entity == null)
-            {
-                return;
-            }
+            var entity = await _context.Application.AsNoTracking().FirstAsync(x => x.Id == application.Id);
             _context.Remove(entity);
             await _context.SaveChangesAsync();
+            return true;
         }
 
         public Task<List<Application>> GetAll()
@@ -48,15 +41,14 @@ namespace Polaris.Repository
             return _context.Application.OrderBy(x => x.Name).ToListAsync();
         }
 
-        public Task<bool> AlreadyCreated(Application application)
-        {
-            return _context.Application.AnyAsync(x => x.Name.ToUpper() == application.Name.ToUpper() &&
-                                                      x.Id != application.Id);
-        }
-
         public Task<bool> Exists(Application application)
         {
-            return _context.Application.AnyAsync(x => x.Id == application.Id);
+            return _context.Application.AnyAsync(x => x.Id == application.Id || x.Name.ToUpper() == application.Name.ToUpper());
+        }
+
+        public Task<bool> NameAlreadyExists(Application application)
+        {
+            return _context.Application.AnyAsync(x => x.Id != application.Id && x.Name.ToUpper() == application.Name.ToUpper());
         }
 
         public Task<bool> AnyMember(Application application)

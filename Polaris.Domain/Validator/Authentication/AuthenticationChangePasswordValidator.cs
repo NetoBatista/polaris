@@ -36,7 +36,7 @@ namespace Polaris.Domain.Validator.Application
         {
             if (authentication == null)
             {
-                _resultModel.Errors.Add("Email is required");
+                _resultModel.Errors.Add("User not found");
             }
         }
 
@@ -59,25 +59,28 @@ namespace Polaris.Domain.Validator.Application
                 return;
             }
 
-            if (string.IsNullOrEmpty(_instance.Password))
+            if (string.IsNullOrEmpty(_instance.CurrentPassword))
             {
-                _resultModel.Errors.Add("Password not found");
+                _resultModel.Errors.Add("CurrentPassword is required");
             }
-            else if (authentication.Password == CryptographyUtil.ConvertToMD5(_instance.Password))
+            else if (_instance.CurrentPassword.Length < 6)
+            {
+                _resultModel.Errors.Add($"CurrentPassword must have at least 6 characters");
+            }
+            else if (authentication.Password != CryptographyUtil.ConvertToMD5(_instance.CurrentPassword))
             {
                 _resultModel.Errors.Add("Passwords don't match");
             }
 
-            if (_instance.Password.Length < 6)
+            if (string.IsNullOrEmpty(_instance.Password))
+            {
+                _resultModel.Errors.Add("Password is required");
+            }
+            else if (_instance.Password.Length < 6)
             {
                 _resultModel.Errors.Add($"Password must have at least 6 characters");
             }
 
-            if (_instance.CurrentPassword.Length < 6)
-            {
-                _resultModel.Errors.Add($"CurrentPassword must have at least 6 characters");
-            }
         }
-
     }
 }

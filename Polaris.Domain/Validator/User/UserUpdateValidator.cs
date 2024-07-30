@@ -1,6 +1,8 @@
 ﻿using Polaris.Domain.Constant;
 using Polaris.Domain.Dto.User;
+using Polaris.Domain.Interface.Repository;
 using Polaris.Domain.Interface.Validator;
+using Polaris.Domain.Mapper;
 using Polaris.Domain.Model;
 
 namespace Polaris.Domain.Validator.Application
@@ -11,11 +13,19 @@ namespace Polaris.Domain.Validator.Application
 
         private UserUpdateRequestDTO _instance = new();
 
+        private IUserRepository _userRepository;
+
+        public UserUpdateValidator(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
         public ValidatorResultModel Validate(UserUpdateRequestDTO request)
         {
             _instance = request;
             NameValidate();
             LanguageValidate();
+            UserNotExistsValidate();
             return _resultModel;
         }
 
@@ -33,6 +43,15 @@ namespace Polaris.Domain.Validator.Application
             else if (_instance.Name.Length > 256)
             {
                 _resultModel.Errors.Add("Name cannot be longer than 256 characters");
+            }
+        }
+
+        private void UserNotExistsValidate()
+        {
+            var alreadyCreated = _userRepository.Exists(UserMapper.ToEntity(_instance)).Result;
+            if (!alreadyCreated)
+            {
+                _resultModel.Errors.Add("User not found");
             }
         }
 

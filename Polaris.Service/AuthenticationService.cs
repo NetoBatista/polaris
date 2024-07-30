@@ -1,4 +1,5 @@
-﻿using Polaris.Domain.Configuration;
+﻿using Microsoft.IdentityModel.Tokens;
+using Polaris.Domain.Configuration;
 using Polaris.Domain.Constant;
 using Polaris.Domain.Dto.Authentication;
 using Polaris.Domain.Dto.User;
@@ -8,7 +9,6 @@ using Polaris.Domain.Interface.Service;
 using Polaris.Domain.Interface.Validator;
 using Polaris.Domain.Mapper;
 using Polaris.Domain.Model;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -136,7 +136,7 @@ namespace Polaris.Service
 
             if (entity.Type != AuthenticationTypeConstant.EmailOnly)
             {
-                return ResponseBaseModel.BadRequest("Authentication type is not EmailOnly");
+                return ResponseBaseModel.BadRequest($"Authentication type is not {AuthenticationTypeConstant.EmailOnly}");
             }
 
             await _authenticationRepository.GenerateCode(entity);

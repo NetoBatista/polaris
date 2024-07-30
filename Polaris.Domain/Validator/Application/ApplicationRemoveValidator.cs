@@ -20,6 +20,7 @@ namespace Polaris.Domain.Validator.Application
         {
             _instance = request;
             AnyMemberValidate();
+            ExistsApplicationValidate();
             return _resultModel;
         }
 
@@ -30,6 +31,16 @@ namespace Polaris.Domain.Validator.Application
             if (response)
             {
                 _resultModel.Errors.Add("It is not possible to remove, there are still members associated with this application.");
+            }
+        }
+
+        private void ExistsApplicationValidate()
+        {
+            var entity = ApplicationMapper.ToEntity(_instance);
+            var exists = _applicationRepository.Exists(entity).Result;
+            if (!exists)
+            {
+                _resultModel.Errors.Add($"Application not found");
             }
         }
     }
