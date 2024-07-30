@@ -36,11 +36,7 @@ namespace Polaris.Repository
 
         public async Task<bool> Remove(User user)
         {
-            var entity = await _context.User.AsNoTracking().FirstOrDefaultAsync(x => x.Id == user.Id);
-            if (entity == null)
-            {
-                return false;
-            }
+            var entity = await _context.User.AsNoTracking().FirstAsync(x => x.Id == user.Id);
             _context.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
@@ -48,11 +44,7 @@ namespace Polaris.Repository
 
         public async Task<bool> Update(User user)
         {
-            var entity = await _context.User.AsNoTracking().FirstOrDefaultAsync(x => x.Id == user.Id);
-            if (entity == null)
-            {
-                return false;
-            }
+            var entity = await _context.User.AsNoTracking().FirstAsync(x => x.Id == user.Id);
             if (!string.IsNullOrEmpty(user.Name))
             {
                 entity.Name = user.Name;

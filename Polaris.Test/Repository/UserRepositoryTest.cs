@@ -6,6 +6,7 @@ using Polaris.Test.Util;
 
 namespace Polaris.Test.Repository
 {
+    [TestClass]
     public class UserRepositoryTest
     {
         private UserRepository _repository;
@@ -127,8 +128,7 @@ namespace Polaris.Test.Repository
             {
                 Id = Guid.NewGuid()
             };
-            var removed = await _repository.Remove(entity);
-            Assert.IsFalse(removed);
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _repository.Remove(entity));
         }
 
         [TestMethod("Should be able update")]
@@ -161,12 +161,9 @@ namespace Polaris.Test.Repository
                 Name = Guid.NewGuid().ToString(),
                 Language = UserLanguageConstant.EN_US
             };
-            _context.Add(entity);
-            await _context.SaveChangesAsync();
             entity.Name = newName;
             entity.Language = newLanguage;
-            var updated = await _repository.Update(entity);
-            Assert.IsFalse(updated);
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _repository.Update(entity));
         }
     }
 }

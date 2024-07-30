@@ -59,6 +59,7 @@ namespace Polaris.Configuration
 
             services.AddTransient<IValidator<UserCreateRequestDTO>, UserCreateValidator>();
             services.AddTransient<IValidator<UserUpdateRequestDTO>, UserUpdateValidator>();
+            services.AddTransient<IValidator<UserRemoveRequestDTO>, UserRemoveValidator>();
 
             services.AddTransient<IValidator<MemberCreateRequestDTO>, MemberCreateValidator>();
 

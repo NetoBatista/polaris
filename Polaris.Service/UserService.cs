@@ -13,13 +13,16 @@ namespace Polaris.Service
         private readonly IUserRepository _userRepository;
         private readonly IValidator<UserCreateRequestDTO> _createValidator;
         private readonly IValidator<UserUpdateRequestDTO> _updateValidator;
+        private readonly IValidator<UserRemoveRequestDTO> _removeValidator;
         public UserService(IUserRepository userRepository,
                            IValidator<UserCreateRequestDTO> createValidator,
-                           IValidator<UserUpdateRequestDTO> updateValidator)
+                           IValidator<UserUpdateRequestDTO> updateValidator,
+                           IValidator<UserRemoveRequestDTO> removeValidator)
         {
             _userRepository = userRepository;
             _createValidator = createValidator;
             _updateValidator = updateValidator;
+            _removeValidator = removeValidator;
         }
         public async Task<ResponseBaseModel> Create(UserCreateRequestDTO request)
         {
@@ -56,6 +59,11 @@ namespace Polaris.Service
 
         public async Task<ResponseBaseModel> Remove(UserRemoveRequestDTO request)
         {
+            var responseValidate = _removeValidator.Validate(request);
+            if (!responseValidate.IsValid)
+            {
+                return ResponseBaseModel.BadRequest(responseValidate.Errors);
+            }
             var entity = UserMapper.ToEntity(request);
             await _userRepository.Remove(entity);
             return ResponseBaseModel.Ok();
