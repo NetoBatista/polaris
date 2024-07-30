@@ -22,6 +22,7 @@
     <ProjectReference Include="..\Polaris.Domain\Polaris.Domain.csproj" />
     <ProjectReference Include="..\Polaris.Repository\Polaris.Repository.csproj" />
     <ProjectReference Include="..\Polaris.Service\Polaris.Service.csproj" />
+    <ProjectReference Include="..\Polaris\Polaris.csproj" />
   </ItemGroup>
 
   <ItemGroup>
