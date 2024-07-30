@@ -57,8 +57,8 @@ namespace Polaris.Test.Service
             Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.OK);
         }
 
-        [TestMethod("Should not be able Create")]
-        public async Task NotCreate()
+        [TestMethod("Should not be able create - AlreadyCreatedValidation")]
+        public async Task NotCreateAlreadyCreatedValidation()
         {
             var entity = new User
             {
@@ -75,6 +75,172 @@ namespace Polaris.Test.Service
                 Email = entity.Email,
                 Language = entity.Language,
                 Name = entity.Name,
+            };
+            var response = await service.Create(request);
+            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod("Should not be able create - NameNullValidation")]
+        public async Task NotCreateNameNullValidation()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US
+            };
+            _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
+            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+
+            var service = CreateService();
+            var request = new UserCreateRequestDTO
+            {
+                Email = entity.Email,
+                Language = entity.Language,
+                Name = string.Empty,
+            };
+            var response = await service.Create(request);
+            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod("Should not be able create - NameLess3Validation")]
+        public async Task NotCreateNameLess3Validation()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US
+            };
+            _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
+            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+
+            var service = CreateService();
+            var request = new UserCreateRequestDTO
+            {
+                Email = entity.Email,
+                Language = entity.Language,
+                Name = "ab",
+            };
+            var response = await service.Create(request);
+            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod("Should not be able create - MoreThen256Validation")]
+        public async Task NotCreateNameMoreThen256Validation()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US
+            };
+            _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
+            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+
+            var service = CreateService();
+            var name = string.Empty;
+            while (name.Length <= 256)
+            {
+                name += Guid.NewGuid().ToString();
+            }
+            var request = new UserCreateRequestDTO
+            {
+                Email = entity.Email,
+                Language = entity.Language,
+                Name = name,
+            };
+            var response = await service.Create(request);
+            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod("Should not be able create - EmailEmpty")]
+        public async Task NotCreateEmailEmptyValidation()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US
+            };
+            _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
+            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+
+            var service = CreateService();
+            var request = new UserCreateRequestDTO
+            {
+                Email = string.Empty,
+                Language = entity.Language,
+                Name = Guid.NewGuid().ToString(),
+            };
+            var response = await service.Create(request);
+            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod("Should not be able create - IncorrectEmail")]
+        public async Task NotCreateIncorrectEmailValidation()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US
+            };
+            _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
+            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+
+            var service = CreateService();
+            var request = new UserCreateRequestDTO
+            {
+                Email = Guid.NewGuid().ToString(),
+                Language = entity.Language,
+                Name = Guid.NewGuid().ToString(),
+            };
+            var response = await service.Create(request);
+            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod("Should not be able create - IncorrectLanguage")]
+        public async Task NotCreateIncorrectLanguageValidation()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US
+            };
+            _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
+            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+
+            var service = CreateService();
+            var request = new UserCreateRequestDTO
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Language = "en",
+                Name = Guid.NewGuid().ToString(),
+            };
+            var response = await service.Create(request);
+            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod("Should not be able create - LanguageEmpty")]
+        public async Task NotCreateLanguageEmptyValidation()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US
+            };
+            _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
+            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+
+            var service = CreateService();
+            var request = new UserCreateRequestDTO
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Language = string.Empty,
+                Name = Guid.NewGuid().ToString(),
             };
             var response = await service.Create(request);
             Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
