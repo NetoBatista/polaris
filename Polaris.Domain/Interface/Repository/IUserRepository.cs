@@ -8,13 +8,11 @@ namespace Polaris.Domain.Interface.Repository
 
         Task<bool> AlreadyCreated(User user);
 
-        Task<User> Update(User user);
+        Task<bool> Update(User user);
 
-        Task Remove(User user);
+        Task<bool> Remove(User user);
 
         Task<User?> Get(User user);
-
-        Task<bool> Exists(User user);
 
         Task<List<User>> Get();
     }

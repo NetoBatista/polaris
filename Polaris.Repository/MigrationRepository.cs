@@ -1,6 +1,6 @@
-﻿using Polaris.Domain.Entity;
+﻿using Microsoft.EntityFrameworkCore;
+using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Polaris.Repository

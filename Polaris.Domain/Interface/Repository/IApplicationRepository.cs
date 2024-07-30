@@ -6,9 +6,9 @@ namespace Polaris.Domain.Interface.Repository
     {
         Task<Application> Create(Application application);
 
-        Task<Application> Update(Application application);
+        Task<Application?> Update(Application application);
 
-        Task Remove(Application application);
+        Task<bool> Remove(Application application);
 
         Task<bool> AlreadyCreated(Application application);
 

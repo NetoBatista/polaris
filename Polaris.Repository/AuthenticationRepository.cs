@@ -113,12 +113,7 @@ namespace Polaris.Repository
 
         public async Task ClearCodeConfirmation(Authentication authentication)
         {
-            var entity = await _context.Authentication.FirstOrDefaultAsync(x => x.Id == authentication.Id &&
-                                                                       x.Type == AuthenticationTypeConstant.EmailOnly);
-            if (entity == null)
-            {
-                return;
-            }
+            var entity = await _context.Authentication.FirstAsync(x => x.Id == authentication.Id);
             entity.Code = null;
             entity.CodeExpiration = null;
             entity.CodeAttempt = null;

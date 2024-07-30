@@ -6,7 +6,7 @@ namespace Polaris.Domain.Interface.Repository
     {
         Task<Member> Create(Member member);
 
-        Task Remove(Member member);
+        Task<bool> Remove(Member member);
 
         Task<List<Member>> Get(Member member);
 

@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polaris", "Polaris\Polaris.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polaris.Domain", "Polaris.Domain\Polaris.Domain.csproj", "{E81B5266-F33A-423A-9D8E-380EF8A1D25E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polaris.Service", "Polaris.Service\Polaris.Service.csproj", "{31D84CED-7792-4EB6-94A1-CDAB159FEDA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polaris.Service", "Polaris.Service\Polaris.Service.csproj", "{31D84CED-7792-4EB6-94A1-CDAB159FEDA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polaris.Repository", "Polaris.Repository\Polaris.Repository.csproj", "{628678D7-CA7C-4EB4-A320-1A8DE8A138CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polaris.Repository", "Polaris.Repository\Polaris.Repository.csproj", "{628678D7-CA7C-4EB4-A320-1A8DE8A138CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polaris.Test", "Polaris.Test\Polaris.Test.csproj", "{2BF22A5D-CDC0-4B31-99DD-F23086437291}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{628678D7-CA7C-4EB4-A320-1A8DE8A138CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{628678D7-CA7C-4EB4-A320-1A8DE8A138CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{628678D7-CA7C-4EB4-A320-1A8DE8A138CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BF22A5D-CDC0-4B31-99DD-F23086437291}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BF22A5D-CDC0-4B31-99DD-F23086437291}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BF22A5D-CDC0-4B31-99DD-F23086437291}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BF22A5D-CDC0-4B31-99DD-F23086437291}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

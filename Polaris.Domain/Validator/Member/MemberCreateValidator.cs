@@ -67,7 +67,7 @@ namespace Polaris.Domain.Validator.Application
         private void UserValidate()
         {
             var entity = new User { Id = _instance.UserId };
-            var exists = _userRepository.Exists(entity).Result;
+            var exists = _userRepository.AlreadyCreated(entity).Result;
             if (!exists)
             {
                 _resultModel.Errors.Add($"User not found");

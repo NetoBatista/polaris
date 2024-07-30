@@ -19,12 +19,12 @@ namespace Polaris.Repository
             return application;
         }
 
-        public async Task<Application> Update(Application application)
+        public async Task<Application?> Update(Application application)
         {
             var entity = await _context.Application.AsNoTracking().FirstOrDefaultAsync(x => x.Id == application.Id);
             if (entity == null)
             {
-                return application;
+                return null;
             }
             entity.Name = application.Name;
             _context.Update(entity);
@@ -32,15 +32,16 @@ namespace Polaris.Repository
             return entity;
         }
 
-        public async Task Remove(Application application)
+        public async Task<bool> Remove(Application application)
         {
             var entity = await _context.Application.AsNoTracking().FirstOrDefaultAsync(x => x.Id == application.Id);
             if (entity == null)
             {
-                return;
+                return false;
             }
             _context.Remove(entity);
             await _context.SaveChangesAsync();
+            return true;
         }
 
         public Task<List<Application>> GetAll()

@@ -34,28 +34,24 @@ namespace Polaris.Repository
             return _context.User.OrderBy(x => x.Email).ToListAsync();
         }
 
-        public Task<bool> Exists(User user)
-        {
-            return _context.User.AnyAsync(x => x.Id == user.Id);
-        }
-
-        public async Task Remove(User user)
+        public async Task<bool> Remove(User user)
         {
             var entity = await _context.User.AsNoTracking().FirstOrDefaultAsync(x => x.Id == user.Id);
             if (entity == null)
             {
-                return;
+                return false;
             }
             _context.Remove(entity);
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<User> Update(User user)
+        public async Task<bool> Update(User user)
         {
             var entity = await _context.User.AsNoTracking().FirstOrDefaultAsync(x => x.Id == user.Id);
             if (entity == null)
             {
-                return user;
+                return false;
             }
             if (!string.IsNullOrEmpty(user.Name))
             {
@@ -67,7 +63,7 @@ namespace Polaris.Repository
             }
             _context.Update(entity);
             await _context.SaveChangesAsync();
-            return entity;
+            return true;
         }
     }
 }

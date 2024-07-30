@@ -44,6 +44,10 @@ namespace Polaris.Service
             }
             var entity = ApplicationMapper.ToEntity(request);
             var response = await _applicationRepository.Update(entity);
+            if (response == null)
+            {
+                return ResponseBaseModel.BadRequest("Application not found");
+            }
             return ResponseBaseModel.Ok(ApplicationMapper.ToResponseDTO(response));
         }
 
@@ -55,7 +59,11 @@ namespace Polaris.Service
                 return ResponseBaseModel.BadRequest(responseValidate.Errors);
             }
             var entity = ApplicationMapper.ToEntity(request);
-            await _applicationRepository.Remove(entity);
+            var response = await _applicationRepository.Remove(entity);
+            if (!response)
+            {
+                return ResponseBaseModel.BadRequest("Application not found");
+            }
             return ResponseBaseModel.Ok();
         }
 

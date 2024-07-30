@@ -1,6 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
-using Microsoft.EntityFrameworkCore;
 namespace Polaris.Repository
 {
     public class MemberRepository : IMemberRepository
@@ -18,16 +18,17 @@ namespace Polaris.Repository
             return member;
         }
 
-        public async Task Remove(Member member)
+        public async Task<bool> Remove(Member member)
         {
             var entity = await _context.Member.AsNoTracking().Include(x => x.AuthenticationNavigation)
                                                              .FirstOrDefaultAsync(x => x.Id == member.Id);
             if (entity == null)
             {
-                return;
+                return false;
             }
             _context.Remove(entity);
             await _context.SaveChangesAsync();
+            return true;
         }
 
         public Task<List<Member>> Get(Member member)
