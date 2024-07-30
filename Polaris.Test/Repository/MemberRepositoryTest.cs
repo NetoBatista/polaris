@@ -59,8 +59,7 @@ namespace Polaris.Test.Repository
             {
                 Id = Guid.NewGuid(),
             };
-            var removed = await _repository.Remove(entity);
-            Assert.IsFalse(removed);
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _repository.Remove(entity));
         }
 
         [TestMethod("Should be able get")]
