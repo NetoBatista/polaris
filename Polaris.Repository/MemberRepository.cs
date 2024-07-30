@@ -21,11 +21,7 @@ namespace Polaris.Repository
         public async Task<bool> Remove(Member member)
         {
             var entity = await _context.Member.AsNoTracking().Include(x => x.AuthenticationNavigation)
-                                                             .FirstOrDefaultAsync(x => x.Id == member.Id);
-            if (entity == null)
-            {
-                return false;
-            }
+                                                             .FirstAsync(x => x.Id == member.Id);
             _context.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
@@ -45,8 +41,8 @@ namespace Polaris.Repository
 
         public Task<bool> Exists(Member member)
         {
-            return _context.Member.AnyAsync(x => x.ApplicationId == member.ApplicationId &&
-                                                 x.UserId == member.UserId);
+            return _context.Member.AnyAsync(x => x.Id == member.Id ||
+                                                 (x.ApplicationId == member.ApplicationId && x.UserId == member.UserId));
         }
     }
 }
