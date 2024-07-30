@@ -6,7 +6,7 @@ namespace Polaris.Domain.Interface.Repository
     {
         Task<User> Create(User user);
 
-        Task<bool> AlreadyCreated(User user);
+        Task<bool> Exists(User user);
 
         Task<bool> Update(User user);
 

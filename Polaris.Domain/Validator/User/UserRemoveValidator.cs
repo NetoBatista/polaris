@@ -27,7 +27,7 @@ namespace Polaris.Domain.Validator.Application
         }
         private void UserNotExistsValidate()
         {
-            var alreadyCreated = _userRepository.AlreadyCreated(UserMapper.ToEntity(_instance)).Result;
+            var alreadyCreated = _userRepository.Exists(UserMapper.ToEntity(_instance)).Result;
             if (!alreadyCreated)
             {
                 _resultModel.Errors.Add("User not found");

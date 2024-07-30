@@ -105,7 +105,7 @@ namespace Polaris.Test.Repository
         {
             var entity = await CreateMockApplication();
             entity.Id = Guid.NewGuid();
-            var alreadyCreated = await _repository.AlreadyCreated(entity);
+            var alreadyCreated = await _repository.Exists(entity);
             Assert.IsTrue(alreadyCreated);
         }
 

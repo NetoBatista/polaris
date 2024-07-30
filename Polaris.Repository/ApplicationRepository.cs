@@ -1,6 +1,6 @@
-﻿using Polaris.Domain.Entity;
+﻿using Microsoft.EntityFrameworkCore;
+using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
-using Microsoft.EntityFrameworkCore;
 
 namespace Polaris.Repository
 {
@@ -49,15 +49,10 @@ namespace Polaris.Repository
             return _context.Application.OrderBy(x => x.Name).ToListAsync();
         }
 
-        public Task<bool> AlreadyCreated(Application application)
-        {
-            return _context.Application.AnyAsync(x => x.Name.ToUpper() == application.Name.ToUpper() &&
-                                                      x.Id != application.Id);
-        }
-
         public Task<bool> Exists(Application application)
         {
-            return _context.Application.AnyAsync(x => x.Id == application.Id);
+            return _context.Application.AnyAsync(x => x.Id == application.Id ||
+                                                      (x.Name.ToUpper() == application.Name.ToUpper() && x.Id != application.Id));
         }
 
         public Task<bool> AnyMember(Application application)

@@ -10,8 +10,6 @@ namespace Polaris.Domain.Interface.Repository
 
         Task<bool> Remove(Application application);
 
-        Task<bool> AlreadyCreated(Application application);
-
         Task<bool> Exists(Application application);
 
         Task<bool> AnyMember(Application application);

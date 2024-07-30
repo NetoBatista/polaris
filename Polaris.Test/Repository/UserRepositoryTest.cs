@@ -36,7 +36,7 @@ namespace Polaris.Test.Repository
             };
             _context.Add(entity);
             await _context.SaveChangesAsync();
-            var alreadyCreated = await _repository.AlreadyCreated(entity);
+            var alreadyCreated = await _repository.Exists(entity);
             Assert.IsTrue(alreadyCreated);
         }
 
@@ -47,7 +47,7 @@ namespace Polaris.Test.Repository
             {
                 Email = $"{Guid.NewGuid()}@email.com"
             };
-            var alreadyCreated = await _repository.AlreadyCreated(entity);
+            var alreadyCreated = await _repository.Exists(entity);
             Assert.IsFalse(alreadyCreated);
         }
 

@@ -12,7 +12,7 @@ namespace Polaris.Repository
             _context = context;
         }
 
-        public Task<bool> AlreadyCreated(User user)
+        public Task<bool> Exists(User user)
         {
             return _context.User.AnyAsync(x => x.Id == user.Id || x.Email.ToUpper() == user.Email.ToUpper());
         }

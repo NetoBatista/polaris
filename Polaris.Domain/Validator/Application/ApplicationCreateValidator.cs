@@ -39,7 +39,7 @@ namespace Polaris.Domain.Validator.Application
         private void AlreadyCreatedValidate()
         {
             var entity = ApplicationMapper.ToEntity(_instance);
-            var response = _applicationRepository.AlreadyCreated(entity).Result;
+            var response = _applicationRepository.Exists(entity).Result;
             if (response)
             {
                 _resultModel.Errors.Add($"There is already an application with that name: {_instance.Name}");

@@ -14,14 +14,17 @@ namespace Polaris.Service
         private readonly IMemberRepository _memberRepository;
         private readonly IAuthenticationRepository _authenticationRepository;
         private readonly IValidator<MemberCreateRequestDTO> _createValidator;
+        private readonly IValidator<MemberRemoveRequestDTO> _removeValidator;
 
         public MemberService(IMemberRepository memberRepository,
                              IAuthenticationRepository authenticationRepository,
-                             IValidator<MemberCreateRequestDTO> createValidator)
+                             IValidator<MemberCreateRequestDTO> createValidator,
+                             IValidator<MemberRemoveRequestDTO> removeValidator)
         {
             _memberRepository = memberRepository;
             _authenticationRepository = authenticationRepository;
             _createValidator = createValidator;
+            _removeValidator = removeValidator;
         }
 
         public async Task<ResponseBaseModel> Create(MemberCreateRequestDTO request)
@@ -53,6 +56,12 @@ namespace Polaris.Service
 
         public async Task<ResponseBaseModel> Remove(MemberRemoveRequestDTO request)
         {
+            var responseValidate = _removeValidator.Validate(request);
+            if (!responseValidate.IsValid)
+            {
+                return ResponseBaseModel.BadRequest(responseValidate.Errors);
+            }
+
             var entity = MemberMapper.ToEntity(request);
             await _memberRepository.Remove(entity);
             return ResponseBaseModel.Ok();

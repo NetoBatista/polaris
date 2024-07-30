@@ -44,7 +44,7 @@ namespace Polaris.Test.Service
                 Language = UserLanguageConstant.EN_US
             };
             _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var request = new UserCreateRequestDTO
@@ -67,7 +67,7 @@ namespace Polaris.Test.Service
                 Language = UserLanguageConstant.EN_US
             };
             _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(true);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(true);
 
             var service = CreateService();
             var request = new UserCreateRequestDTO
@@ -90,7 +90,7 @@ namespace Polaris.Test.Service
                 Language = UserLanguageConstant.EN_US
             };
             _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var request = new UserCreateRequestDTO
@@ -113,7 +113,7 @@ namespace Polaris.Test.Service
                 Language = UserLanguageConstant.EN_US
             };
             _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var request = new UserCreateRequestDTO
@@ -136,7 +136,7 @@ namespace Polaris.Test.Service
                 Language = UserLanguageConstant.EN_US
             };
             _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var name = string.Empty;
@@ -164,7 +164,7 @@ namespace Polaris.Test.Service
                 Language = UserLanguageConstant.EN_US
             };
             _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var request = new UserCreateRequestDTO
@@ -187,7 +187,7 @@ namespace Polaris.Test.Service
                 Language = UserLanguageConstant.EN_US
             };
             _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var request = new UserCreateRequestDTO
@@ -210,7 +210,7 @@ namespace Polaris.Test.Service
                 Language = UserLanguageConstant.EN_US
             };
             _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var request = new UserCreateRequestDTO
@@ -233,7 +233,7 @@ namespace Polaris.Test.Service
                 Language = UserLanguageConstant.EN_US
             };
             _repository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(entity);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var request = new UserCreateRequestDTO
@@ -289,7 +289,7 @@ namespace Polaris.Test.Service
         public async Task Remove()
         {
             _repository.Setup(x => x.Remove(It.IsAny<User>())).ReturnsAsync(true);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(true);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(true);
 
             var service = CreateService();
             var request = new UserRemoveRequestDTO
@@ -304,7 +304,7 @@ namespace Polaris.Test.Service
         public async Task NotRemove()
         {
             _repository.Setup(x => x.Remove(It.IsAny<User>())).ReturnsAsync(true);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var request = new UserRemoveRequestDTO
@@ -319,7 +319,7 @@ namespace Polaris.Test.Service
         public async Task Update()
         {
             _repository.Setup(x => x.Update(It.IsAny<User>())).ReturnsAsync(true);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(true);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(true);
 
             var service = CreateService();
             var request = new UserUpdateRequestDTO
@@ -336,7 +336,7 @@ namespace Polaris.Test.Service
         public async Task NotUpdate()
         {
             _repository.Setup(x => x.Update(It.IsAny<User>())).ReturnsAsync(true);
-            _repository.Setup(x => x.AlreadyCreated(It.IsAny<User>())).ReturnsAsync(false);
+            _repository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(false);
 
             var service = CreateService();
             var request = new UserUpdateRequestDTO
