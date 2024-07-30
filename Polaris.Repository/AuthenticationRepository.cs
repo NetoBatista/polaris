@@ -101,7 +101,8 @@ namespace Polaris.Repository
 
         public async Task<Authentication> GenerateCode(Authentication authentication)
         {
-            var entity = await _context.Authentication.FirstAsync(x => x.Id == authentication.Id &&
+            var entity = await _context.Authentication.AsNoTracking()
+                                                      .FirstAsync(x => x.Id == authentication.Id &&
                                                                        x.Type == AuthenticationTypeConstant.EmailOnly);
             entity.Code = CodeConfirmation();
             entity.CodeExpiration = DateTime.UtcNow.AddMinutes(5);
