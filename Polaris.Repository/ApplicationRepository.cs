@@ -43,12 +43,14 @@ namespace Polaris.Repository
 
         public Task<bool> Exists(Application application)
         {
-            return _context.Application.AnyAsync(x => x.Id == application.Id || x.Name.ToUpper() == application.Name.ToUpper());
+            var name = application.Name ?? string.Empty;
+            return _context.Application.AnyAsync(x => x.Id == application.Id || x.Name.ToUpper() == name.ToUpper());
         }
 
         public Task<bool> NameAlreadyExists(Application application)
         {
-            return _context.Application.AnyAsync(x => x.Id != application.Id && x.Name.ToUpper() == application.Name.ToUpper());
+            var name = application.Name ?? string.Empty;
+            return _context.Application.AnyAsync(x => x.Id != application.Id && x.Name.ToUpper() == name.ToUpper());
         }
 
         public Task<bool> AnyMember(Application application)

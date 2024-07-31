@@ -23,10 +23,11 @@ namespace Polaris.Repository
 
         public async Task<bool> AuthenticatePassword(AuthenticationPasswordModel model)
         {
+            var email = model.Email ?? string.Empty;
             return await _context.Authentication.AsNoTracking()
                                                 .Include(x => x.MemberNavigation)
                                                 .ThenInclude(x => x.UserNavigation)
-                                                .AnyAsync(x => x.MemberNavigation.UserNavigation.Email.ToUpper() == model.Email.ToUpper() &&
+                                                .AnyAsync(x => x.MemberNavigation.UserNavigation.Email.ToUpper() == email.ToUpper() &&
                                                                x.MemberNavigation.ApplicationId == model.ApplicationId &&
                                                                x.Password == model.Password &&
                                                                x.Type == AuthenticationTypeConstant.EmailPassword);
@@ -58,12 +59,13 @@ namespace Polaris.Repository
 
         public Task<Authentication?> GetByEmailApplication(AuthenticationByUserApplicationModel model)
         {
+            var email = model.Email ?? string.Empty;
             return _context.Authentication.AsNoTracking()
                                           .Include(x => x.MemberNavigation)
                                           .ThenInclude(x => x.UserNavigation)
                                           .Include(x => x.MemberNavigation)
                                           .ThenInclude(x => x.ApplicationNavigation)
-                                          .FirstOrDefaultAsync(x => x.MemberNavigation.UserNavigation.Email.ToUpper() == model.Email.ToUpper() &&
+                                          .FirstOrDefaultAsync(x => x.MemberNavigation.UserNavigation.Email.ToUpper() == email.ToUpper() &&
                                                                     x.MemberNavigation.ApplicationNavigation.Id == model.ApplicationId);
         }
 

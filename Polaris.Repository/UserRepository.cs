@@ -14,7 +14,8 @@ namespace Polaris.Repository
 
         public Task<bool> Exists(User user)
         {
-            return _context.User.AnyAsync(x => x.Id == user.Id || x.Email.ToUpper() == user.Email.ToUpper());
+            var email = user.Email ?? string.Empty;
+            return _context.User.AnyAsync(x => x.Id == user.Id || x.Email.ToUpper() == email.ToUpper());
         }
 
         public async Task<User> Create(User user)
@@ -26,7 +27,8 @@ namespace Polaris.Repository
 
         public Task<User?> Get(User user)
         {
-            return _context.User.FirstOrDefaultAsync(x => x.Email.ToUpper() == user.Email.ToUpper());
+            var email = user.Email ?? string.Empty;
+            return _context.User.FirstOrDefaultAsync(x => x.Email.ToUpper() == email.ToUpper());
         }
 
         public Task<List<User>> Get()
