@@ -38,7 +38,10 @@ namespace Polaris.Repository
 
         public async Task<bool> Remove(User user)
         {
-            var entity = await _context.User.AsNoTracking().FirstAsync(x => x.Id == user.Id);
+            var entity = await _context.User.AsNoTracking()
+                                            .Include(x => x.MemberNavigation)
+                                            .ThenInclude(x => x.AuthenticationNavigation)
+                                            .FirstAsync(x => x.Id == user.Id);
             _context.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
