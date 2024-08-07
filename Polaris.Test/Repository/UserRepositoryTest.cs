@@ -113,7 +113,19 @@ namespace Polaris.Test.Repository
             {
                 Email = $"{Guid.NewGuid()}@email.com",
                 Name = Guid.NewGuid().ToString(),
-                Language = UserLanguageConstant.EN_US
+                Language = UserLanguageConstant.EN_US,
+                MemberNavigation = new List<Member>
+                {
+                    new Member
+                    {
+                        ApplicationId = Guid.NewGuid(),
+                        AuthenticationNavigation = new Authentication
+                        {
+                            Type = AuthenticationTypeConstant.EmailOnly,
+                            RefreshToken = Guid.NewGuid().ToString()
+                        }
+                    }
+                }
             };
             _context.Add(entity);
             await _context.SaveChangesAsync();
