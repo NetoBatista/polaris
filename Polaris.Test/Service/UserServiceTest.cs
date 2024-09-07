@@ -246,8 +246,8 @@ namespace Polaris.Test.Service
             Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
         }
 
-        [TestMethod("Should be able get by filter")]
-        public async Task GetByFilter()
+        [TestMethod("Should be able get by name filter")]
+        public async Task GetByNameFilter()
         {
             var entity = new User
             {
@@ -261,6 +261,66 @@ namespace Polaris.Test.Service
             var request = new UserGetRequestDTO
             {
                 Email = entity.Email,
+            };
+            var response = await service.Get(request);
+            var users = (List<UserResponseDTO>?)response.Value;
+            Assert.AreEqual(users!.Count, 1);
+        }
+
+        [TestMethod("Should be able get by id filter")]
+        public async Task GetByIdFilter()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US
+            };
+            _repository.Setup(x => x.Get(It.IsAny<User>())).ReturnsAsync(entity);
+
+            var service = CreateService();
+            var request = new UserGetRequestDTO
+            {
+                Id = entity.Id
+            };
+            var response = await service.Get(request);
+            var users = (List<UserResponseDTO>?)response.Value;
+            Assert.AreEqual(users!.Count, 1);
+        }
+
+        [TestMethod("Should be able get by application filter")]
+        public async Task GetByApplicationFilter()
+        {
+            var userId = Guid.NewGuid();
+            var applicationId = Guid.NewGuid();
+            var entity = new User
+            {
+                Id = userId,
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US,
+                MemberNavigation = new List<Member>
+                {
+                    new Member
+                    {
+                        Id = Guid.NewGuid(),
+                        ApplicationId = applicationId,
+                        UserId = userId,
+                        ApplicationNavigation = new Application
+                        {
+                            Id = applicationId,
+                            Name = Guid.NewGuid().ToString()
+                        }
+                    }
+                }
+            };
+            _repository.Setup(x => x.GetByApplication(It.IsAny<Guid>()))
+                       .ReturnsAsync(new List<User> { entity });
+
+            var service = CreateService();
+            var request = new UserGetRequestDTO
+            {
+                ApplicationId = entity.MemberNavigation.First().ApplicationId
             };
             var response = await service.Get(request);
             var users = (List<UserResponseDTO>?)response.Value;

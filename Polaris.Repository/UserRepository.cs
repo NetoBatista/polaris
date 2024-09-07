@@ -28,7 +28,14 @@ namespace Polaris.Repository
         public Task<User?> Get(User user)
         {
             var email = user.Email ?? string.Empty;
-            return _context.User.FirstOrDefaultAsync(x => x.Email.ToUpper() == email.ToUpper());
+            return _context.User.FirstOrDefaultAsync(x => x.Email.ToUpper() == email.ToUpper() || x.Id == user.Id);
+        }
+
+        public Task<List<User>> GetByApplication(Guid applicationId)
+        {
+            return _context.User.Include(x => x.MemberNavigation)
+                                .Where(x => x.MemberNavigation.Any(y => y.ApplicationId == applicationId))
+                                .ToListAsync();
         }
 
         public Task<List<User>> Get()

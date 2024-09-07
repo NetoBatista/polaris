@@ -15,5 +15,7 @@ namespace Polaris.Domain.Interface.Repository
         Task<User?> Get(User user);
 
         Task<List<User>> Get();
+
+        Task<List<User>> GetByApplication(Guid applicationId);
     }
 }

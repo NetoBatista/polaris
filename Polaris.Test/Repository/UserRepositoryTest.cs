@@ -80,6 +80,51 @@ namespace Polaris.Test.Repository
             Assert.IsNotNull(responseUser);
         }
 
+        [TestMethod("Should be able get by id")]
+        public async Task GetById()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US
+            };
+            _context.Add(entity);
+            await _context.SaveChangesAsync();
+            entity = new User
+            {
+                Id = entity.Id
+            };
+            var responseUser = await _repository.Get(entity);
+            Assert.IsNotNull(responseUser);
+        }
+
+        [TestMethod("Should be able get by application")]
+        public async Task GetByApplication()
+        {
+            var entity = new User
+            {
+                Email = $"{Guid.NewGuid()}@email.com",
+                Name = Guid.NewGuid().ToString(),
+                Language = UserLanguageConstant.EN_US,
+                MemberNavigation = new List<Member>
+                {
+                    new Member
+                    {
+                        ApplicationNavigation = new Application
+                        {
+                            Name = Guid.NewGuid().ToString()
+                        }
+                    }
+                }
+            };
+            _context.Add(entity);
+            await _context.SaveChangesAsync();
+            var applicationId = entity.MemberNavigation.First().ApplicationId;
+            var responseUser = await _repository.GetByApplication(applicationId);
+            Assert.IsTrue(responseUser.Any());
+        }
+
         [TestMethod("Should not be able get by email")]
         public async Task NotGetByEmail()
         {
