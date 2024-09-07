@@ -48,12 +48,58 @@ namespace Polaris.Test.Controller
             Assert.IsNull(response.Value);
         }
 
-        [TestMethod("Should be able get")]
-        public async Task Get()
+        [TestMethod("Should be able get by email")]
+        public async Task GetByEmail()
         {
             var request = new UserGetRequestDTO
             {
                 Email = $"{Guid.NewGuid()}@email.com"
+            };
+
+            var responseDTO = new UserResponseDTO
+            {
+                Email = request.Email,
+                Id = Guid.NewGuid(),
+                Language = UserLanguageConstant.EN_US,
+                Name = Guid.NewGuid().ToString()
+            };
+            var responseBase = ResponseBaseModel.Ok(new List<UserResponseDTO> { responseDTO });
+            _service.Setup(x => x.Get(It.IsAny<UserGetRequestDTO>())).ReturnsAsync(responseBase);
+
+            var controller = CreateController();
+            var response = await controller.Get(request);
+            Assert.IsNull(response.Value);
+        }
+
+        [TestMethod("Should be able get by id")]
+        public async Task GetById()
+        {
+            var request = new UserGetRequestDTO
+            {
+                Id = Guid.NewGuid(),
+            };
+
+            var responseDTO = new UserResponseDTO
+            {
+                Email = request.Email,
+                Id = request.Id.Value,
+                Language = UserLanguageConstant.EN_US,
+                Name = Guid.NewGuid().ToString()
+            };
+            var responseBase = ResponseBaseModel.Ok(new List<UserResponseDTO> { responseDTO });
+            _service.Setup(x => x.Get(It.IsAny<UserGetRequestDTO>())).ReturnsAsync(responseBase);
+
+            var controller = CreateController();
+            var response = await controller.Get(request);
+            Assert.IsNull(response.Value);
+        }
+
+        [TestMethod("Should be able get by application")]
+        public async Task GetByApplication()
+        {
+            var request = new UserGetRequestDTO
+            {
+                ApplicationId = Guid.NewGuid()
             };
 
             var responseDTO = new UserResponseDTO

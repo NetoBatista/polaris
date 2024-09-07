@@ -39,21 +39,39 @@ namespace Polaris.Service
         public async Task<ResponseBaseModel> Get(UserGetRequestDTO request)
         {
             List<UserResponseDTO> response = [];
+            if (request.Id != null)
+            {
+                var entity = new User { Id = request.Id.Value };
+                var user = await _userRepository.Get(entity);
+                if (user != null)
+                {
+                    response.Add(UserMapper.ToResponseDTO(user));
+                }
+                return ResponseBaseModel.Ok(response);
+            }
+
             if (!string.IsNullOrEmpty(request.Email))
             {
                 var entity = new User { Email = request.Email };
-                var users = await _userRepository.Get(entity);
-                if (users != null)
+                var user = await _userRepository.Get(entity);
+                if (user != null)
                 {
-                    response.Add(UserMapper.ToResponseDTO(users));
+                    response.Add(UserMapper.ToResponseDTO(user));
                 }
-            }
-            else
-            {
-                var users = await _userRepository.Get();
-                response.AddRange(users.Select(UserMapper.ToResponseDTO));
+                return ResponseBaseModel.Ok(response);
             }
 
+            List<User> users = [];
+
+            if (request.ApplicationId != null)
+            {
+                users = await _userRepository.GetByApplication(request.ApplicationId.Value);
+                response.AddRange(users.Select(UserMapper.ToResponseDTO));
+                return ResponseBaseModel.Ok(response);
+            }
+
+            users = await _userRepository.Get();
+            response.AddRange(users.Select(UserMapper.ToResponseDTO));
             return ResponseBaseModel.Ok(response);
         }
 
