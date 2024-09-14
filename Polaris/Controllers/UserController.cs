@@ -5,8 +5,6 @@ using Polaris.Extension;
 
 namespace Polaris.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
     public class UserController : BaseControllerV1Extension
     {
         private readonly IUserService _userService;

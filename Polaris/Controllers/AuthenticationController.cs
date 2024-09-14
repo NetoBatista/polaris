@@ -1,12 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
 using Polaris.Domain.Dto.Authentication;
 using Polaris.Domain.Interface.Service;
 using Polaris.Extension;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Polaris.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
     public class AuthenticationController : BaseControllerV1Extension
     {
         private readonly IAuthenticationService _authenticationService;
