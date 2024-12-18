@@ -57,7 +57,6 @@ namespace Polaris.Test.Controller
                 {
                     new MemberItemUserResponseDTO
                     {
-                        Auth = AuthenticationTypeConstant.EmailOnly,
                         Email = $"{Guid.NewGuid()}@email.com",
                         MemberId = Guid.NewGuid()
                     }
@@ -91,7 +90,6 @@ namespace Polaris.Test.Controller
                 {
                     new MemberItemUserResponseDTO
                     {
-                        Auth= AuthenticationTypeConstant.EmailOnly,
                         Email= $"{Guid.NewGuid()}@email.com",
                         MemberId = Guid.NewGuid()
                     }

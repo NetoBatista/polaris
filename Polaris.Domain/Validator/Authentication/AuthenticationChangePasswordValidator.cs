@@ -5,7 +5,7 @@ using Polaris.Domain.Interface.Repository;
 using Polaris.Domain.Interface.Validator;
 using Polaris.Domain.Model;
 
-namespace Polaris.Domain.Validator.Application
+namespace Polaris.Domain.Validator.Authentication
 {
     public class AuthenticationChangePasswordValidator : IValidator<AuthenticationChangePasswordRequestDTO>
     {
@@ -27,12 +27,11 @@ namespace Polaris.Domain.Validator.Application
             };
             var entity = _authenticationRepository.GetByEmailApplication(model).Result;
             ApplicationValidate(entity);
-            PasswordTypeValidate(entity);
             PasswordValidate(entity);
             return _resultModel;
         }
 
-        private void ApplicationValidate(Authentication? authentication)
+        private void ApplicationValidate(Entity.Authentication? authentication)
         {
             if (authentication == null)
             {
@@ -40,36 +39,11 @@ namespace Polaris.Domain.Validator.Application
             }
         }
 
-        private void PasswordTypeValidate(Authentication? authentication)
+        private void PasswordValidate(Entity.Authentication? authentication)
         {
             if (authentication == null)
             {
                 return;
-            }
-            if (authentication.Type != AuthenticationTypeConstant.EmailPassword)
-            {
-                _resultModel.Errors.Add($"Password can only be changed with the type {AuthenticationTypeConstant.EmailPassword}");
-            }
-        }
-
-        private void PasswordValidate(Authentication? authentication)
-        {
-            if (authentication == null)
-            {
-                return;
-            }
-
-            if (string.IsNullOrEmpty(_instance.CurrentPassword))
-            {
-                _resultModel.Errors.Add("CurrentPassword is required");
-            }
-            else if (_instance.CurrentPassword.Length < 6)
-            {
-                _resultModel.Errors.Add($"CurrentPassword must have at least 6 characters");
-            }
-            else if (authentication.Password != CryptographyUtil.ConvertToMD5(_instance.CurrentPassword))
-            {
-                _resultModel.Errors.Add("Passwords don't match");
             }
 
             if (string.IsNullOrEmpty(_instance.Password))

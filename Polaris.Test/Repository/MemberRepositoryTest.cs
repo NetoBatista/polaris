@@ -73,7 +73,6 @@ namespace Polaris.Test.Repository
                 },
                 AuthenticationNavigation = new Authentication
                 {
-                    Type = AuthenticationTypeConstant.EmailOnly,
                     RefreshToken = Guid.NewGuid().ToString()
                 },
                 UserNavigation = new User

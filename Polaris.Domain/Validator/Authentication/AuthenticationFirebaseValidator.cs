@@ -5,25 +5,43 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Polaris.Domain.Validator.Authentication
 {
-    public class AuthenticationValidator : IValidator<AuthenticationRequestDTO>
+    public class AuthenticationFirebaseValidator : IValidator<AuthenticationFirebaseRequestDTO>
     {
         private ValidatorResultModel _resultModel = new();
-        private AuthenticationRequestDTO _instance = new();
+        private AuthenticationFirebaseRequestDTO _instance = new();
 
-        public ValidatorResultModel Validate(AuthenticationRequestDTO request)
+        public ValidatorResultModel Validate(AuthenticationFirebaseRequestDTO request)
         {
             _instance = request;
-            CodePasswordValidate();
+            TokenFirebaseValidate();
+            FirebaseAppIdValidate();
+            FirebaseCredentialsValidate();
             EmailValidate();
             ApplicationValidate();
             return _resultModel;
         }
-
-        private void CodePasswordValidate()
+        
+        private void FirebaseAppIdValidate()
         {
-            if (string.IsNullOrEmpty(_instance.Password) && string.IsNullOrEmpty(_instance.Code))
+            if (string.IsNullOrEmpty(_instance.FirebaseAppId))
             {
-                _resultModel.Errors.Add("Code or Password cannot be empty");
+                _resultModel.Errors.Add("JsonCredentials cannot be empty");
+            }
+        }
+        
+        private void FirebaseCredentialsValidate()
+        {
+            if (string.IsNullOrEmpty(_instance.JsonCredentials))
+            {
+                _resultModel.Errors.Add("JsonCredentials cannot be empty");
+            }
+        }
+
+        private void TokenFirebaseValidate()
+        {
+            if (string.IsNullOrEmpty(_instance.TokenFirebase))
+            {
+                _resultModel.Errors.Add("TokenFirebase cannot be empty");
             }
         }
 

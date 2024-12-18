@@ -39,15 +39,14 @@ namespace Polaris.Service
             var member = await _memberRepository.Create(entity);
 
             string? password = null;
-            if (request.AuthenticationType == AuthenticationTypeConstant.EmailPassword)
+            if (!string.IsNullOrEmpty(request.Password))
             {
                 password = CryptographyUtil.ConvertToMD5(request.Password!);
             }
             var entityAuthentication = new Authentication
             {
                 MemberId = member.Id,
-                Password = password,
-                Type = request.AuthenticationType
+                Password = password
             };
             await _authenticationRepository.Create(entityAuthentication);
 
@@ -90,7 +89,6 @@ namespace Polaris.Service
                         MemberId = x.Id,
                         Id = x.ApplicationNavigation.Id,
                         Name = x.ApplicationNavigation.Name,
-                        Auth = x.AuthenticationNavigation.Type,
                     }).ToList()
                 };
             }
@@ -125,7 +123,6 @@ namespace Polaris.Service
                                     .Select(x => new MemberItemUserResponseDTO
                                     {
                                         MemberId = x.Id,
-                                        Auth = x.AuthenticationNavigation.Type,
                                         Email = x.UserNavigation.Email
                                     }).ToList()
                 };

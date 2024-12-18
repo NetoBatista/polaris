@@ -67,12 +67,6 @@ namespace Polaris.Domain.Entity
                     .IsUnicode(false)
                     .HasColumnName("codeAttempt");
 
-
-                entity.Property(e => e.Type)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("type");
-
                 entity.Property(e => e.CodeExpiration)
                     .HasColumnType("datetime")
                     .HasColumnName("codeExpiration");

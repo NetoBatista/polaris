@@ -27,7 +27,6 @@ namespace Polaris.Domain.Validator.Application
         {
             _instance = request;
             AuthenticationPasswordValidate();
-            AuthenticationTypeValidate();
             UserValidate();
             ApplicationValidate();
             AlreadyMemberValidate();
@@ -36,31 +35,9 @@ namespace Polaris.Domain.Validator.Application
 
         private void AuthenticationPasswordValidate()
         {
-            if (_instance.AuthenticationType == AuthenticationTypeConstant.EmailPassword)
+            if (!string.IsNullOrEmpty(_instance.Password) && _instance.Password.Length < 6)
             {
-                if (string.IsNullOrEmpty(_instance.Password))
-                {
-                    _resultModel.Errors.Add($"Password is required");
-                }
-                else if (_instance.Password.Length < 6)
-                {
-                    _resultModel.Errors.Add($"Password must have at least 6 characters");
-                }
-            }
-            else if (_instance.AuthenticationType == AuthenticationTypeConstant.EmailOnly)
-            {
-                if (!string.IsNullOrEmpty(_instance.Password))
-                {
-                    _resultModel.Errors.Add($"For {AuthenticationTypeConstant.EmailOnly} the password must be empty.");
-                }
-            }
-        }
-
-        private void AuthenticationTypeValidate()
-        {
-            if (!AuthenticationTypeConstant.IsValid(_instance.AuthenticationType))
-            {
-                _resultModel.Errors.Add($"Authentication type must be {AuthenticationTypeConstant.EmailOnly} or {AuthenticationTypeConstant.EmailPassword}");
+                _resultModel.Errors.Add($"Password must have at least 6 characters");
             }
         }
 

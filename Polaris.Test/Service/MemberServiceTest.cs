@@ -58,7 +58,6 @@ namespace Polaris.Test.Service
             var request = new MemberCreateRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                AuthenticationType = AuthenticationTypeConstant.EmailOnly,
                 UserId = Guid.NewGuid()
             };
             var response = await service.Create(request);
@@ -84,39 +83,11 @@ namespace Polaris.Test.Service
             var request = new MemberCreateRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                AuthenticationType = AuthenticationTypeConstant.EmailPassword,
                 Password = "123456",
                 UserId = Guid.NewGuid()
             };
             var response = await service.Create(request);
             Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.OK);
-        }
-
-        [TestMethod("Should not be able create PasswordEmpty")]
-        public async Task NotCreatePasswordEmpty()
-        {
-            var member = new Member
-            {
-                Id = Guid.NewGuid(),
-                ApplicationId = Guid.NewGuid(),
-                UserId = Guid.NewGuid()
-            };
-            _applicationRepository.Setup(x => x.Exists(It.IsAny<Application>())).ReturnsAsync(true);
-            _userRepository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(true);
-            _repository.Setup(x => x.Create(It.IsAny<Member>())).ReturnsAsync(member);
-            _repository.Setup(x => x.Exists(It.IsAny<Member>())).ReturnsAsync(false);
-            _authenticationRepository.Setup(x => x.Create(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var request = new MemberCreateRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                AuthenticationType = AuthenticationTypeConstant.EmailPassword,
-                Password = string.Empty,
-                UserId = Guid.NewGuid()
-            };
-            var response = await service.Create(request);
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
         }
 
         [TestMethod("Should not be able create PasswordLessThen6")]
@@ -138,61 +109,7 @@ namespace Polaris.Test.Service
             var request = new MemberCreateRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                AuthenticationType = AuthenticationTypeConstant.EmailPassword,
                 Password = "123",
-                UserId = Guid.NewGuid()
-            };
-            var response = await service.Create(request);
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
-        [TestMethod("Should not be able create Password with type EmailOnly")]
-        public async Task NotCreatePasswordWithTypeEmailOnly()
-        {
-            var member = new Member
-            {
-                Id = Guid.NewGuid(),
-                ApplicationId = Guid.NewGuid(),
-                UserId = Guid.NewGuid()
-            };
-            _applicationRepository.Setup(x => x.Exists(It.IsAny<Application>())).ReturnsAsync(true);
-            _userRepository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(true);
-            _repository.Setup(x => x.Create(It.IsAny<Member>())).ReturnsAsync(member);
-            _repository.Setup(x => x.Exists(It.IsAny<Member>())).ReturnsAsync(false);
-            _authenticationRepository.Setup(x => x.Create(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var request = new MemberCreateRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                AuthenticationType = AuthenticationTypeConstant.EmailOnly,
-                Password = "123456",
-                UserId = Guid.NewGuid()
-            };
-            var response = await service.Create(request);
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
-        [TestMethod("Should not be able create incorrect authenticaiton type")]
-        public async Task NotCreateIncorrectAuthenticationType()
-        {
-            var member = new Member
-            {
-                Id = Guid.NewGuid(),
-                ApplicationId = Guid.NewGuid(),
-                UserId = Guid.NewGuid()
-            };
-            _applicationRepository.Setup(x => x.Exists(It.IsAny<Application>())).ReturnsAsync(true);
-            _userRepository.Setup(x => x.Exists(It.IsAny<User>())).ReturnsAsync(true);
-            _repository.Setup(x => x.Create(It.IsAny<Member>())).ReturnsAsync(member);
-            _repository.Setup(x => x.Exists(It.IsAny<Member>())).ReturnsAsync(false);
-            _authenticationRepository.Setup(x => x.Create(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var request = new MemberCreateRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                AuthenticationType = "abc",
                 UserId = Guid.NewGuid()
             };
             var response = await service.Create(request);
@@ -218,7 +135,6 @@ namespace Polaris.Test.Service
             var request = new MemberCreateRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                AuthenticationType = AuthenticationTypeConstant.EmailOnly,
                 UserId = Guid.NewGuid()
             };
             var response = await service.Create(request);
@@ -244,7 +160,6 @@ namespace Polaris.Test.Service
             var request = new MemberCreateRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                AuthenticationType = AuthenticationTypeConstant.EmailOnly,
                 UserId = Guid.NewGuid()
             };
             var response = await service.Create(request);
@@ -270,7 +185,6 @@ namespace Polaris.Test.Service
             var request = new MemberCreateRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                AuthenticationType = AuthenticationTypeConstant.EmailOnly,
                 UserId = Guid.NewGuid()
             };
             var response = await service.Create(request);
@@ -328,7 +242,6 @@ namespace Polaris.Test.Service
                     AuthenticationNavigation = new Authentication
                     {
                         Id = authenticationId,
-                        Type = AuthenticationTypeConstant.EmailOnly,
                         RefreshToken = Guid.NewGuid().ToString()
                     },
                     UserNavigation = new User
@@ -373,7 +286,6 @@ namespace Polaris.Test.Service
                     AuthenticationNavigation = new Authentication
                     {
                         Id = authenticationId,
-                        Type = AuthenticationTypeConstant.EmailOnly,
                         RefreshToken = Guid.NewGuid().ToString()
                     },
                     UserNavigation = new User

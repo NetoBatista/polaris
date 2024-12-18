@@ -5,7 +5,7 @@ using Polaris.Domain.Dto.Authentication;
 using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
 using Polaris.Domain.Model;
-using Polaris.Domain.Validator.Application;
+using Polaris.Domain.Validator.Authentication;
 using Polaris.Service;
 using System.Net;
 
@@ -41,17 +41,17 @@ namespace Polaris.Test.Service
         private AuthenticationService CreateService()
         {
             var authenticatorValidator = new AuthenticationValidator();
+            var authenticatorFirebaseValidator = new AuthenticationFirebaseValidator();
             var authenticatorRefreshTokenValidator = new AuthenticationRefreshTokenValidator();
             var authenticatorGenerateCodeValidator = new AuthenticationGenerateCodeValidator();
-            var authenticatorChangeTypeValidator = new AuthenticationChangeTypeValidator();
             var authenticationChangePasswordValidator = new AuthenticationChangePasswordValidator(_repository.Object);
             return new AuthenticationService(_repository.Object,
                                             _userRepository.Object,
                                             _memberRepository.Object,
                                             authenticatorValidator,
+                                            authenticatorFirebaseValidator,
                                             authenticatorGenerateCodeValidator,
                                             authenticatorRefreshTokenValidator,
-                                            authenticatorChangeTypeValidator,
                                             authenticationChangePasswordValidator);
         }
 
@@ -70,7 +70,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -122,7 +121,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -172,7 +170,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -222,7 +219,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -274,7 +270,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -326,7 +321,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -377,7 +371,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -429,7 +422,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -481,7 +473,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -533,7 +524,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -584,7 +574,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -614,52 +603,6 @@ namespace Polaris.Test.Service
             var response = await service.GenerateCode(request);
 
             Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.OK);
-        }
-
-        [TestMethod("Should not be able GenerateCode IncorrectAuthenticationType")]
-        public async Task NotGenerateCodeIncorrectAuthenticationType()
-        {
-            var request = new AuthenticationGenerateCodeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = $"{Guid.NewGuid()}@email.com"
-            };
-
-            var memberId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
-                RefreshToken = Guid.NewGuid().ToString(),
-                MemberNavigation = new Member
-                {
-                    Id = memberId,
-                    UserId = userId,
-                    ApplicationId = request.ApplicationId,
-                    ApplicationNavigation = new Application
-                    {
-                        Id = request.ApplicationId,
-                        Name = Guid.NewGuid().ToString(),
-                    },
-                    UserNavigation = new User
-                    {
-                        Id = userId,
-                        Name = Guid.NewGuid().ToString(),
-                        Email = request.Email,
-                    }
-                }
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()))
-                       .ReturnsAsync(entity);
-            _repository.Setup(x => x.GenerateCode(It.IsAny<Authentication>()));
-
-
-            var service = CreateService();
-            var response = await service.GenerateCode(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
         }
 
         [TestMethod("Should not be able GenerateCode NotFound")]
@@ -751,7 +694,6 @@ namespace Polaris.Test.Service
             var userId = Guid.NewGuid(); var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -799,7 +741,6 @@ namespace Polaris.Test.Service
             var userId = Guid.NewGuid(); var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -852,277 +793,13 @@ namespace Polaris.Test.Service
             Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
         }
 
-        [TestMethod("Should be able ChangeTypeToEmailOnly")]
-        public async Task ChangeTypeToEmailOnly()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = $"{Guid.NewGuid()}@email.com",
-                Type = AuthenticationTypeConstant.EmailOnly
-            };
-
-            var memberId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
-                Password = CryptographyUtil.ConvertToMD5("123456"),
-                RefreshToken = Guid.NewGuid().ToString(),
-                MemberNavigation = new Member
-                {
-                    Id = memberId,
-                    UserId = userId,
-                    ApplicationId = request.ApplicationId,
-                    ApplicationNavigation = new Application
-                    {
-                        Id = request.ApplicationId,
-                        Name = Guid.NewGuid().ToString(),
-                    },
-                    UserNavigation = new User
-                    {
-                        Id = userId,
-                        Name = Guid.NewGuid().ToString(),
-                        Email = request.Email,
-                    }
-                }
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()))
-                       .ReturnsAsync(entity);
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.OK);
-        }
-
-        [TestMethod("Should be able ChangeTypeToEmailPassword")]
-        public async Task ChangeTypeToEmailPassword()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = $"{Guid.NewGuid()}@email.com",
-                Type = AuthenticationTypeConstant.EmailPassword,
-                Password = "123456"
-            };
-
-            var memberId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
-                RefreshToken = Guid.NewGuid().ToString(),
-                MemberNavigation = new Member
-                {
-                    Id = memberId,
-                    UserId = userId,
-                    ApplicationId = request.ApplicationId,
-                    ApplicationNavigation = new Application
-                    {
-                        Id = request.ApplicationId,
-                        Name = Guid.NewGuid().ToString(),
-                    },
-                    UserNavigation = new User
-                    {
-                        Id = userId,
-                        Name = Guid.NewGuid().ToString(),
-                        Email = request.Email,
-                    }
-                }
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()))
-                       .ReturnsAsync(entity);
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.OK);
-        }
-
-        [TestMethod("Should not be able ChangeType EmailApplicationNotFound")]
-        public async Task NotChangeTypeEmailApplicationNotFound()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = $"{Guid.NewGuid()}@email.com",
-                Type = AuthenticationTypeConstant.EmailPassword,
-                Password = "123456"
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()));
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
-        [TestMethod("Should not be able ChangeType Email empty")]
-        public async Task NotChangeTypeEmailEmpty()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = string.Empty,
-                Type = AuthenticationTypeConstant.EmailPassword,
-                Password = "123456"
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()));
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
-        [TestMethod("Should not be able ChangeType Email incorrect")]
-        public async Task NotChangeTypeEmailIncorrect()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = "abc",
-                Type = AuthenticationTypeConstant.EmailPassword,
-                Password = "123456"
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()));
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
-        [TestMethod("Should not be able ChangeType Type Incorrect")]
-        public async Task NotChangeTypeIncorrect()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = $"{Guid.NewGuid()}@email.com",
-                Type = "abc",
-                Password = "123456"
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()));
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
-        [TestMethod("Should not be able ChangeType Application Incorrect")]
-        public async Task NotChangeTypeApplicationIncorrect()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.Empty,
-                Email = $"{Guid.NewGuid()}@email.com",
-                Type = AuthenticationTypeConstant.EmailOnly,
-                Password = "123456"
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()));
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
-        [TestMethod("Should not be able ChangeType Password empty")]
-        public async Task NotChangeTypePasswordEmpty()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = $"{Guid.NewGuid()}@email.com",
-                Type = AuthenticationTypeConstant.EmailPassword,
-                Password = string.Empty
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()));
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
-        [TestMethod("Should not be able ChangeType Password less then 6")]
-        public async Task NotChangeTypePasswordLessThen6()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = $"{Guid.NewGuid()}@email.com",
-                Type = AuthenticationTypeConstant.EmailPassword,
-                Password = "123"
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()));
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
-        [TestMethod("Should not be able ChangeType Password with type email only")]
-        public async Task NotChangeTypePasswordWithTypeEmailOnly()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = $"{Guid.NewGuid()}@email.com",
-                Type = AuthenticationTypeConstant.EmailOnly,
-                Password = "123"
-            };
-
-            _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()));
-            _repository.Setup(x => x.ChangeType(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
-
-            var service = CreateService();
-            var response = await service.ChangeType(request);
-
-            Assert.AreEqual(response.StatusCode, (int)HttpStatusCode.BadRequest);
-        }
-
         [TestMethod("Should be able Change Password")]
         public async Task ChangePassword()
         {
             var request = new AuthenticationChangePasswordRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                CurrentPassword = "123456",
+                Code = Guid.NewGuid().ToString(),
                 Password = "123456",
                 Email = $"{Guid.NewGuid()}@email.com"
             };
@@ -1132,7 +809,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
@@ -1156,6 +832,8 @@ namespace Polaris.Test.Service
 
             _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()))
                        .ReturnsAsync(entity);
+            _repository.Setup(x => x.AuthenticateCode(It.IsAny<Authentication>()))
+                       .ReturnsAsync(true);
             _repository.Setup(x => x.ChangePassword(It.IsAny<Authentication>()));
 
             var service = CreateService();
@@ -1170,7 +848,7 @@ namespace Polaris.Test.Service
             var request = new AuthenticationChangePasswordRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                CurrentPassword = "123",
+                Code = Guid.NewGuid().ToString(),
                 Password = "123456",
                 Email = $"{Guid.NewGuid()}@email.com"
             };
@@ -1180,7 +858,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
@@ -1218,7 +895,7 @@ namespace Polaris.Test.Service
             var request = new AuthenticationChangePasswordRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                CurrentPassword = "123456",
+                Code = Guid.NewGuid().ToString(),
                 Password = "123",
                 Email = $"{Guid.NewGuid()}@email.com"
             };
@@ -1228,7 +905,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
@@ -1266,7 +942,7 @@ namespace Polaris.Test.Service
             var request = new AuthenticationChangePasswordRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                CurrentPassword = "123456",
+                Code = Guid.NewGuid().ToString(),
                 Password = "123456",
                 Email = $"{Guid.NewGuid()}@email.com"
             };
@@ -1276,7 +952,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("12345678"),
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
@@ -1314,7 +989,7 @@ namespace Polaris.Test.Service
             var request = new AuthenticationChangePasswordRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                CurrentPassword = string.Empty,
+                Code = Guid.NewGuid().ToString(),
                 Password = "123456",
                 Email = $"{Guid.NewGuid()}@email.com"
             };
@@ -1324,7 +999,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
@@ -1362,7 +1036,7 @@ namespace Polaris.Test.Service
             var request = new AuthenticationChangePasswordRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                CurrentPassword = "123456",
+                Code = Guid.NewGuid().ToString(),
                 Password = string.Empty,
                 Email = $"{Guid.NewGuid()}@email.com"
             };
@@ -1372,7 +1046,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
@@ -1410,7 +1083,7 @@ namespace Polaris.Test.Service
             var request = new AuthenticationChangePasswordRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                CurrentPassword = "123456",
+                Code = Guid.NewGuid().ToString(),
                 Password = "123456",
                 Email = $"{Guid.NewGuid()}@email.com"
             };
@@ -1420,7 +1093,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
@@ -1457,7 +1129,7 @@ namespace Polaris.Test.Service
             var request = new AuthenticationChangePasswordRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                CurrentPassword = "123456",
+                Code = Guid.NewGuid().ToString(),
                 Password = "123456",
                 Email = $"{Guid.NewGuid()}@email.com"
             };

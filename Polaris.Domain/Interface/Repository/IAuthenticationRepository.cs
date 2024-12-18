@@ -13,8 +13,6 @@ namespace Polaris.Domain.Interface.Repository
 
         Task<Authentication> RefreshToken(Authentication authentication);
 
-        Task<Authentication> ChangeType(Authentication authentication);
-
         Task<Authentication> GenerateCode(Authentication authentication);
 
         Task<bool> CanValidateCode(Authentication authentication);
