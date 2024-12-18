@@ -28,9 +28,8 @@ namespace Polaris.Repository
                                                 .Include(x => x.MemberNavigation)
                                                 .ThenInclude(x => x.UserNavigation)
                                                 .AnyAsync(x => x.MemberNavigation.UserNavigation.Email.ToUpper() == email.ToUpper() &&
-                                                               x.MemberNavigation.ApplicationId == model.ApplicationId &&
-                                                               x.Password == model.Password &&
-                                                               x.Type == AuthenticationTypeConstant.EmailPassword);
+                                                                           x.MemberNavigation.ApplicationId == model.ApplicationId &&
+                                                                           x.Password == model.Password);
         }
 
         public async Task<bool> AuthenticateCode(Authentication authentication)
@@ -45,8 +44,7 @@ namespace Polaris.Repository
 
         public async Task<bool> ChangePassword(Authentication authentication)
         {
-            var entity = await _context.Authentication.FirstOrDefaultAsync(x => x.Id == authentication.Id &&
-                                                                                x.Type == AuthenticationTypeConstant.EmailPassword);
+            var entity = await _context.Authentication.FirstOrDefaultAsync(x => x.Id == authentication.Id);
             if (entity == null)
             {
                 return false;
@@ -84,28 +82,10 @@ namespace Polaris.Repository
             return entity;
         }
 
-        public async Task<Authentication> ChangeType(Authentication authentication)
-        {
-            var entity = await _context.Authentication.FirstAsync(x => x.Id == authentication.Id);
-            entity.Type = authentication.Type;
-            if (AuthenticationTypeConstant.EmailOnly == entity.Type)
-            {
-                entity.Password = null;
-            }
-            else
-            {
-                entity.Password = authentication.Password;
-            }
-            _context.Update(entity);
-            await _context.SaveChangesAsync();
-            return entity;
-        }
-
         public async Task<Authentication> GenerateCode(Authentication authentication)
         {
             var entity = await _context.Authentication.AsNoTracking()
-                                                      .FirstAsync(x => x.Id == authentication.Id &&
-                                                                       x.Type == AuthenticationTypeConstant.EmailOnly);
+                                                                  .FirstAsync(x => x.Id == authentication.Id);
             entity.Code = CodeConfirmation();
             entity.CodeExpiration = DateTime.UtcNow.AddMinutes(5);
             entity.CodeAttempt = 0;

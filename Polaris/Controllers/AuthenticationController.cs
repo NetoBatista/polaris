@@ -19,6 +19,13 @@ namespace Polaris.Controllers
             var response = await _authenticationService.Authenticate(request);
             return ToObjectResult(response);
         }
+        
+        [HttpPost("Firebase")]
+        public async Task<ActionResult<AuthenticationResponseDTO>> AuthenticateFirebase([FromBody] AuthenticationFirebaseRequestDTO request)
+        {
+            var response = await _authenticationService.AuthenticateFirebase(request);
+            return ToObjectResult(response);
+        }
 
         [HttpPost("Code")]
         public async Task<ActionResult> GenerateCode([FromBody] AuthenticationGenerateCodeRequestDTO request)
@@ -31,13 +38,6 @@ namespace Polaris.Controllers
         public async Task<ActionResult<AuthenticationResponseDTO>> RefreshToken([FromBody] AuthenticationRefreshTokenRequestDTO request)
         {
             var response = await _authenticationService.RefreshToken(request);
-            return ToObjectResult(response);
-        }
-
-        [HttpPost("ChangeType")]
-        public async Task<ActionResult> ChangeType([FromBody] AuthenticationChangeTypeRequestDTO request)
-        {
-            var response = await _authenticationService.ChangeType(request);
             return ToObjectResult(response);
         }
 

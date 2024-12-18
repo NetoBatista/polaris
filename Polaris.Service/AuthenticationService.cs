@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using System.Collections.Concurrent;
+using Microsoft.IdentityModel.Tokens;
 using Polaris.Domain.Configuration;
 using Polaris.Domain.Constant;
 using Polaris.Domain.Dto.Authentication;
@@ -12,26 +13,30 @@ using Polaris.Domain.Model;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FirebaseAdmin;
+using FirebaseAdmin.Auth;
 
 namespace Polaris.Service
 {
     public class AuthenticationService : IAuthenticationService
     {
+        private static readonly ConcurrentDictionary<string, FirebaseApp> FirebaseApps = new();
+
         private readonly IAuthenticationRepository _authenticationRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMemberRepository _memberRepository;
         private readonly IValidator<AuthenticationRequestDTO> _authenticatorValidator;
+        private readonly IValidator<AuthenticationFirebaseRequestDTO> _authenticatorFirebaseValidator;
         private readonly IValidator<AuthenticationRefreshTokenRequestDTO> _authenticatorRefreshTokenValidator;
         private readonly IValidator<AuthenticationGenerateCodeRequestDTO> _authenticatorGenerateCodeValidator;
-        private readonly IValidator<AuthenticationChangeTypeRequestDTO> _authenticatorChangeTypeValidator;
         private readonly IValidator<AuthenticationChangePasswordRequestDTO> _authenticationChangePasswordValidator;
         public AuthenticationService(IAuthenticationRepository authenticationRepository,
                                      IUserRepository userRepository,
                                      IMemberRepository memberRepository,
                                      IValidator<AuthenticationRequestDTO> authenticatorValidator,
+                                     IValidator<AuthenticationFirebaseRequestDTO> authenticatorFirebaseValidator,
                                      IValidator<AuthenticationGenerateCodeRequestDTO> authenticatorGenerateCodeValidator,
                                      IValidator<AuthenticationRefreshTokenRequestDTO> authenticatorRefreshTokenValidator,
-                                     IValidator<AuthenticationChangeTypeRequestDTO> authenticatorChangeTypeValidator,
                                      IValidator<AuthenticationChangePasswordRequestDTO> authenticationChangePasswordValidator)
         {
             _authenticationRepository = authenticationRepository;
@@ -40,8 +45,8 @@ namespace Polaris.Service
             _authenticatorValidator = authenticatorValidator;
             _authenticatorGenerateCodeValidator = authenticatorGenerateCodeValidator;
             _authenticatorRefreshTokenValidator = authenticatorRefreshTokenValidator;
-            _authenticatorChangeTypeValidator = authenticatorChangeTypeValidator;
             _authenticationChangePasswordValidator = authenticationChangePasswordValidator;
+            _authenticatorFirebaseValidator = authenticatorFirebaseValidator;
         }
 
         public async Task<ResponseBaseModel> Authenticate(AuthenticationRequestDTO request)
@@ -66,7 +71,7 @@ namespace Polaris.Service
 
             var isValid = false;
 
-            if (entity.Type == AuthenticationTypeConstant.EmailPassword)
+            if (!string.IsNullOrEmpty(request.Password))
             {
                 var authenticationPasswordModel = new AuthenticationPasswordModel
                 {
@@ -76,7 +81,7 @@ namespace Polaris.Service
                 };
                 isValid = await _authenticationRepository.AuthenticatePassword(authenticationPasswordModel);
             }
-            else
+            else if (!string.IsNullOrEmpty(request.Code))
             {
                 var canValidate = await _authenticationRepository.CanValidateCode(entity);
                 if (!canValidate)
@@ -97,9 +102,57 @@ namespace Polaris.Service
                 return ResponseBaseModel.BadRequest("Invalid credentials");
             }
 
+            var response = await GenerateAuthenticationResponseDto(request.Email, entity);
+            return ResponseBaseModel.Ok(response);
+        }
+
+        public async Task<ResponseBaseModel> AuthenticateFirebase(AuthenticationFirebaseRequestDTO request)
+        {
+            var responseValidate = _authenticatorFirebaseValidator.Validate(request);
+            if (!responseValidate.IsValid)
+            {
+                return ResponseBaseModel.BadRequest(responseValidate.Errors);
+            }
+
+            var model = new AuthenticationByUserApplicationModel
+            {
+                ApplicationId = request.ApplicationId,
+                Email = request.Email,
+            };
+            var entity = await _authenticationRepository.GetByEmailApplication(model);
+
+            if (entity == null)
+            {
+                return ResponseBaseModel.BadRequest("Email or application not found");
+            }
+
+            var isValid = false;
+
+            try
+            {
+                var firebaseApp = GetFirebaseApp(request.FirebaseAppId, request.JsonCredentials);
+                var decodedToken = await FirebaseAuth.GetAuth(firebaseApp).VerifyIdTokenAsync(request.TokenFirebase);
+                isValid = decodedToken != null;
+            }
+            catch
+            {
+                isValid = false;
+            }
+
+            if (!isValid)
+            {
+                return ResponseBaseModel.BadRequest("Invalid credentials");
+            }
+
+            var response = await GenerateAuthenticationResponseDto(request.Email, entity);
+            return ResponseBaseModel.Ok(response);
+        }
+
+        private async Task<AuthenticationResponseDTO> GenerateAuthenticationResponseDto(string email, Authentication entity)
+        {
             var userEntity = new User
             {
-                Email = request.Email
+                Email = email
             };
             var userResponse = await _userRepository.Get(userEntity);
             var authentication = await _authenticationRepository.RefreshToken(entity);
@@ -111,7 +164,7 @@ namespace Polaris.Service
                 Token = token,
                 RefreshToken = authentication.RefreshToken!
             };
-            return ResponseBaseModel.Ok(response);
+            return response;
         }
 
         public async Task<ResponseBaseModel> GenerateCode(AuthenticationGenerateCodeRequestDTO request)
@@ -132,11 +185,6 @@ namespace Polaris.Service
             if (entity == null)
             {
                 return ResponseBaseModel.BadRequest("Email or application not found");
-            }
-
-            if (entity.Type != AuthenticationTypeConstant.EmailOnly)
-            {
-                return ResponseBaseModel.BadRequest($"Authentication type is not {AuthenticationTypeConstant.EmailOnly}");
             }
 
             await _authenticationRepository.GenerateCode(entity);
@@ -176,35 +224,6 @@ namespace Polaris.Service
             return ResponseBaseModel.Ok(response);
         }
 
-        public async Task<ResponseBaseModel> ChangeType(AuthenticationChangeTypeRequestDTO request)
-        {
-            var responseValidate = _authenticatorChangeTypeValidator.Validate(request);
-            if (!responseValidate.IsValid)
-            {
-                return ResponseBaseModel.BadRequest(responseValidate.Errors);
-            }
-
-            var model = new AuthenticationByUserApplicationModel
-            {
-                ApplicationId = request.ApplicationId,
-                Email = request.Email,
-            };
-            var entity = await _authenticationRepository.GetByEmailApplication(model);
-
-            if (entity == null)
-            {
-                return ResponseBaseModel.BadRequest("Email or application not found");
-            }
-            entity.Type = request.Type;
-            if (request.Type == AuthenticationTypeConstant.EmailPassword)
-            {
-                entity.Password = CryptographyUtil.ConvertToMD5(request.Password!);
-            }
-            await _authenticationRepository.ChangeType(entity);
-            await _authenticationRepository.ClearCodeConfirmation(entity);
-            return ResponseBaseModel.Ok();
-        }
-
         public async Task<ResponseBaseModel> ChangePassword(AuthenticationChangePasswordRequestDTO request)
         {
             var responseValidate = _authenticationChangePasswordValidator.Validate(request);
@@ -219,8 +238,22 @@ namespace Polaris.Service
                 Email = request.Email
             };
             var entity = await _authenticationRepository.GetByEmailApplication(model);
+
+            var authenticationEmailOnlyModel = new Authentication
+            {
+                Id = entity.Id,
+                Code = request.Code
+            };
+
+            var isValid = await _authenticationRepository.AuthenticateCode(authenticationEmailOnlyModel);
+            if (!isValid)
+            {
+                return ResponseBaseModel.BadRequest("Invalid credentials");
+            }
+
             entity!.Password = CryptographyUtil.ConvertToMD5(request.Password!);
             await _authenticationRepository.ChangePassword(entity);
+            await _authenticationRepository.ClearCodeConfirmation(entity);
 
             return ResponseBaseModel.Ok();
         }
@@ -244,6 +277,21 @@ namespace Polaris.Service
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        private FirebaseApp GetFirebaseApp(string appId, string jsonFirebase)
+        {
+            if (!FirebaseApps.TryGetValue(appId, out var firebaseApp))
+            {
+                firebaseApp = FirebaseApp.Create(
+                    new AppOptions
+                    {
+                        Credential = Google.Apis.Auth.OAuth2.GoogleCredential.FromJson(jsonFirebase)
+                    }, appId);
+                FirebaseApps[appId] = firebaseApp;
+            }
+
+            return firebaseApp;
         }
     }
 }

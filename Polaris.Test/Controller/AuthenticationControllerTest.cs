@@ -91,34 +91,13 @@ namespace Polaris.Test.Controller
             Assert.AreEqual(result!.StatusCode, (int)HttpStatusCode.OK);
         }
 
-        [TestMethod("Should be able to change type")]
-        public async Task ChangeType()
-        {
-            var request = new AuthenticationChangeTypeRequestDTO
-            {
-                ApplicationId = Guid.NewGuid(),
-                Email = $"{Guid.NewGuid()}@email.com",
-                Password = "123456",
-                Type = AuthenticationTypeConstant.EmailOnly
-            };
-
-            var responseBase = ResponseBaseModel.Ok();
-            _service.Setup(x => x.ChangeType(It.IsAny<AuthenticationChangeTypeRequestDTO>()))
-                    .ReturnsAsync(responseBase);
-
-            var controller = CreateController();
-            var response = await controller.ChangeType(request);
-            var result = (ObjectResult)response;
-            Assert.AreEqual(result.StatusCode, (int)HttpStatusCode.OK);
-        }
-
         [TestMethod("Should be able to change password")]
         public async Task ChangePassword()
         {
             var request = new AuthenticationChangePasswordRequestDTO
             {
                 ApplicationId = Guid.NewGuid(),
-                CurrentPassword = "123456",
+                Code = Guid.NewGuid().ToString(),
                 Email = $"{Guid.NewGuid()}@email.com",
                 Password = "123456"
             };

@@ -32,7 +32,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 MemberId = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
             };
             entity = await _repository.Create(entity);
             var exists = await _context.Authentication.AnyAsync(x => x.Id == entity!.Id);
@@ -45,7 +44,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
                 MemberNavigation = new Member
                 {
@@ -81,7 +79,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
                 MemberNavigation = new Member
                 {
@@ -117,7 +114,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 Code = "123456",
                 CodeExpiration = DateTime.UtcNow.AddMinutes(5),
             };
@@ -134,7 +130,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 Code = "123456",
                 CodeExpiration = DateTime.UtcNow.AddMinutes(5),
             };
@@ -151,7 +146,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
             };
             _context.Authentication.Add(entity);
@@ -161,28 +155,12 @@ namespace Polaris.Test.Repository
             Assert.IsTrue(response);
         }
 
-        [TestMethod("Should not be able change password")]
-        public async Task NotChangePassword()
-        {
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
-            };
-            _context.Authentication.Add(entity);
-            await _context.SaveChangesAsync();
-            entity.Password = CryptographyUtil.ConvertToMD5("123456");
-            var response = await _repository.ChangePassword(entity);
-            Assert.IsFalse(response);
-        }
-
         [TestMethod("Should be able get by email and application")]
         public async Task GetByEmailApplication()
         {
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
                 MemberNavigation = new Member
                 {
@@ -217,7 +195,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
                 Password = CryptographyUtil.ConvertToMD5("123456"),
                 MemberNavigation = new Member
                 {
@@ -252,7 +229,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
             };
             _context.Authentication.Add(entity);
@@ -268,7 +244,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = Guid.NewGuid().ToString(),
             };
             _context.Authentication.Add(entity);
@@ -285,7 +260,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 RefreshToken = refreshToken,
             };
             _context.Authentication.Add(entity);
@@ -294,45 +268,12 @@ namespace Polaris.Test.Repository
             Assert.AreNotEqual(response.RefreshToken, refreshToken);
         }
 
-        [TestMethod("Should be able change type to email only")]
-        public async Task ChangeTypeToEmailOnly()
-        {
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailPassword,
-                Password = CryptographyUtil.ConvertToMD5("123456"),
-            };
-            _context.Authentication.Add(entity);
-            await _context.SaveChangesAsync();
-            entity.Type = AuthenticationTypeConstant.EmailOnly;
-            var response = await _repository.ChangeType(entity);
-            Assert.IsNull(response.Password);
-        }
-
-        [TestMethod("Should be able change type to email password")]
-        public async Task ChangeTypeToEmailPassword()
-        {
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
-            };
-            _context.Authentication.Add(entity);
-            await _context.SaveChangesAsync();
-            entity.Type = AuthenticationTypeConstant.EmailPassword;
-            entity.Password = CryptographyUtil.ConvertToMD5("123456");
-            var response = await _repository.ChangeType(entity);
-            Assert.IsNotNull(response.Password);
-        }
-
         [TestMethod("Should be able generate code")]
         public async Task GenerateCode()
         {
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
             };
             _context.Authentication.Add(entity);
             await _context.SaveChangesAsync();
@@ -349,7 +290,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 Code = "123456",
                 CodeExpiration = DateTime.UtcNow.AddMinutes(5),
                 CodeAttempt = 1,
@@ -370,7 +310,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 Code = "123456",
                 CodeExpiration = DateTime.UtcNow.AddMinutes(5),
                 CodeAttempt = 1,
@@ -387,7 +326,6 @@ namespace Polaris.Test.Repository
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                Type = AuthenticationTypeConstant.EmailOnly,
                 Code = "123456",
                 CodeExpiration = DateTime.UtcNow.AddMinutes(-10),
                 CodeAttempt = 1,

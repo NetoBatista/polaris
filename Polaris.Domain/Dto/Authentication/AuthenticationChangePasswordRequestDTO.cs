@@ -8,6 +8,6 @@
 
         public string Password { get; set; } = null!;
 
-        public string CurrentPassword { get; set; } = null!;
+        public string Code { get; set; } = null!;
     }
 }

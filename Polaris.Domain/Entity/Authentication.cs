@@ -14,8 +14,6 @@
 
         public int? CodeAttempt { get; set; }
 
-        public string Type { get; set; } = null!;
-
         public DateTime? CodeExpiration { get; set; }
 
         public virtual Member MemberNavigation { get; set; } = null!;

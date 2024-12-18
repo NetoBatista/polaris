@@ -9,6 +9,7 @@ using Polaris.Domain.Interface.Repository;
 using Polaris.Domain.Interface.Service;
 using Polaris.Domain.Interface.Validator;
 using Polaris.Domain.Validator.Application;
+using Polaris.Domain.Validator.Authentication;
 using Polaris.Repository;
 using Polaris.Service;
 
@@ -65,9 +66,9 @@ namespace Polaris.Configuration
             services.AddTransient<IValidator<MemberRemoveRequestDTO>, MemberRemoveValidator>();
 
             services.AddTransient<IValidator<AuthenticationRequestDTO>, AuthenticationValidator>();
+            services.AddTransient<IValidator<AuthenticationFirebaseRequestDTO>, AuthenticationFirebaseValidator>();
             services.AddTransient<IValidator<AuthenticationRefreshTokenRequestDTO>, AuthenticationRefreshTokenValidator>();
             services.AddTransient<IValidator<AuthenticationGenerateCodeRequestDTO>, AuthenticationGenerateCodeValidator>();
-            services.AddTransient<IValidator<AuthenticationChangeTypeRequestDTO>, AuthenticationChangeTypeValidator>();
             services.AddTransient<IValidator<AuthenticationChangePasswordRequestDTO>, AuthenticationChangePasswordValidator>();
         }
     }

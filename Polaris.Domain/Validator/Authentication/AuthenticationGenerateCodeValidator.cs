@@ -3,7 +3,7 @@ using Polaris.Domain.Interface.Validator;
 using Polaris.Domain.Model;
 using System.ComponentModel.DataAnnotations;
 
-namespace Polaris.Domain.Validator.Application
+namespace Polaris.Domain.Validator.Authentication
 {
     public class AuthenticationGenerateCodeValidator : IValidator<AuthenticationGenerateCodeRequestDTO>
     {
