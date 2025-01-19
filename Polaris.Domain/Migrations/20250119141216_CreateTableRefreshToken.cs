@@ -34,7 +34,7 @@ namespace Polaris.Domain.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshToken_AuthenticationId",
                 table: "refreshToken",
-                column: "AuthenticationId");
+                column: "authenticationId");
 
             migrationBuilder.Sql(@"
 INSERT INTO refreshToken ([Id], [AuthenticationId], [Used])
@@ -47,7 +47,7 @@ FROM [authentication]
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "RefreshToken");
+                name: "refreshToken");
         }
     }
 }
