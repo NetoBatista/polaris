@@ -39,7 +39,7 @@ namespace Polaris.Domain.Migrations
             migrationBuilder.Sql(@"
 INSERT INTO refreshToken ([Id], [AuthenticationId], [Used])
 SELECT [refreshToken], [id], 0
-FROM [Authentication]
+FROM [authentication]
 ");
         }
 
