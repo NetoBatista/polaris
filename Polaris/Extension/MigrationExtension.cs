@@ -1,7 +1,9 @@
-﻿using Polaris.Domain.Interface.Service;
+﻿using System.Diagnostics.CodeAnalysis;
+using Polaris.Domain.Interface.Service;
 
 namespace Polaris.Extension
 {
+    [ExcludeFromCodeCoverage]
     public static class MigrationExtension
     {
         public static void ExecuteMigrations(this IServiceCollection services)
