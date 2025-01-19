@@ -38,6 +38,25 @@ namespace Polaris.Test.Repository
             Assert.IsTrue(exists);
         }
 
+        [TestMethod("Should be able get by id")]
+        public async Task GetById()
+        {
+            var entity = new Authentication
+            {
+                MemberId = Guid.NewGuid(),
+            };
+            entity = await _repository.Create(entity);
+            var exists = await _repository.GetById(entity!.Id);
+            Assert.IsNotNull(exists);
+        }
+
+        [TestMethod("Should not be able get by id")]
+        public async Task NotGetById()
+        {
+            var exists = await _repository.GetById(Guid.NewGuid());
+            Assert.IsNull(exists);
+        }
+
         [TestMethod("Should be able authenticate with password")]
         public async Task AuthenticatePassword()
         {
@@ -221,51 +240,6 @@ namespace Polaris.Test.Repository
             };
             var response = await _repository.GetByEmailApplication(requestModel);
             Assert.IsNull(response);
-        }
-
-        [TestMethod("Should be able get by refresh token")]
-        public async Task GetByRefreshToken()
-        {
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
-            };
-            _context.Authentication.Add(entity);
-            await _context.SaveChangesAsync();
-
-            var response = await _repository.GetByRefreshToken(entity);
-            Assert.IsNotNull(response);
-        }
-
-        [TestMethod("Should not be able get by refresh token")]
-        public async Task NotGetByRefreshToken()
-        {
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
-            };
-            _context.Authentication.Add(entity);
-            await _context.SaveChangesAsync();
-            entity.RefreshToken = Guid.NewGuid().ToString();
-            var response = await _repository.GetByRefreshToken(entity);
-            Assert.IsNull(response);
-        }
-
-        [TestMethod("Should be able refresh token")]
-        public async Task RefreshToken()
-        {
-            var refreshToken = Guid.NewGuid().ToString();
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                RefreshToken = refreshToken,
-            };
-            _context.Authentication.Add(entity);
-            await _context.SaveChangesAsync();
-            var response = await _repository.RefreshToken(entity);
-            Assert.AreNotEqual(response.RefreshToken, refreshToken);
         }
 
         [TestMethod("Should be able generate code")]

@@ -25,6 +25,7 @@ namespace Polaris.Service
         private readonly IAuthenticationRepository _authenticationRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMemberRepository _memberRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IValidator<AuthenticationRequestDTO> _authenticatorValidator;
         private readonly IValidator<AuthenticationFirebaseRequestDTO> _authenticatorFirebaseValidator;
         private readonly IValidator<AuthenticationRefreshTokenRequestDTO> _authenticatorRefreshTokenValidator;
@@ -33,6 +34,7 @@ namespace Polaris.Service
         public AuthenticationService(IAuthenticationRepository authenticationRepository,
                                      IUserRepository userRepository,
                                      IMemberRepository memberRepository,
+                                     IRefreshTokenRepository refreshTokenRepository,
                                      IValidator<AuthenticationRequestDTO> authenticatorValidator,
                                      IValidator<AuthenticationFirebaseRequestDTO> authenticatorFirebaseValidator,
                                      IValidator<AuthenticationGenerateCodeRequestDTO> authenticatorGenerateCodeValidator,
@@ -43,6 +45,7 @@ namespace Polaris.Service
             _userRepository = userRepository;
             _memberRepository = memberRepository;
             _authenticatorValidator = authenticatorValidator;
+            _refreshTokenRepository = refreshTokenRepository;
             _authenticatorGenerateCodeValidator = authenticatorGenerateCodeValidator;
             _authenticatorRefreshTokenValidator = authenticatorRefreshTokenValidator;
             _authenticationChangePasswordValidator = authenticationChangePasswordValidator;
@@ -155,14 +158,14 @@ namespace Polaris.Service
                 Email = email
             };
             var userResponse = await _userRepository.Get(userEntity);
-            var authentication = await _authenticationRepository.RefreshToken(entity);
+            var authentication = await _refreshTokenRepository.Create(entity.Id);
             await _authenticationRepository.ClearCodeConfirmation(entity);
             var token = GenerateToken(UserMapper.ToResponseDTO(userResponse!));
             var response = new AuthenticationResponseDTO
             {
                 Expire = TokenConfig.Expire * 60,
                 Token = token,
-                RefreshToken = authentication.RefreshToken!
+                RefreshToken = authentication.Id.ToString()
             };
             return response;
         }
@@ -200,14 +203,20 @@ namespace Polaris.Service
                 return ResponseBaseModel.BadRequest(responseValidate.Errors);
             }
 
-            var entity = new Authentication { RefreshToken = request.RefreshToken.ToString() };
-            var authentication = await _authenticationRepository.GetByRefreshToken(entity);
+            var refreshToken = await _refreshTokenRepository.Get(request.RefreshToken);
+            if (refreshToken == null)
+            {
+                return ResponseBaseModel.BadRequest("Invalid credentials");
+            }
+            
+            var authentication = await _authenticationRepository.GetById(refreshToken.AuthenticationId);
             if (authentication == null)
             {
                 return ResponseBaseModel.BadRequest("Invalid credentials");
             }
 
-            authentication = await _authenticationRepository.RefreshToken(authentication);
+            await _refreshTokenRepository.Update(refreshToken.Id);
+            refreshToken = await _refreshTokenRepository.Create(authentication.Id);
             await _authenticationRepository.ClearCodeConfirmation(authentication);
             var memberEntity = new Member
             {
@@ -219,7 +228,7 @@ namespace Polaris.Service
             {
                 Expire = TokenConfig.Expire * 60,
                 Token = token,
-                RefreshToken = authentication.RefreshToken!
+                RefreshToken = refreshToken.Id.ToString()
             };
             return ResponseBaseModel.Ok(response);
         }

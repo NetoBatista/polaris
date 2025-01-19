@@ -49,6 +49,33 @@ namespace Polaris.Test.Controller
             Assert.AreEqual(result!.StatusCode, (int)HttpStatusCode.OK);
         }
 
+        [TestMethod("Should be able authenticate firebase")]
+        public async Task AuthenticateFirebase()
+        {
+            var request = new AuthenticationFirebaseRequestDTO
+            {
+                ApplicationId = Guid.NewGuid(),
+                FirebaseAppId = Guid.NewGuid().ToString(),
+                JsonCredentials = Guid.NewGuid().ToString(),
+                TokenFirebase = Guid.NewGuid().ToString(),
+                Email = $"{Guid.NewGuid()}@email.com"
+            };
+
+            var responseDTO = new AuthenticationResponseDTO
+            {
+                Token = "token",
+                Expire = 5,
+                RefreshToken = Guid.NewGuid().ToString(),
+            };
+            var responseBase = ResponseBaseModel.Ok(responseDTO);
+            _service.Setup(x => x.AuthenticateFirebase(It.IsAny<AuthenticationFirebaseRequestDTO>())).ReturnsAsync(responseBase);
+
+            var controller = CreateController();
+            var response = await controller.AuthenticateFirebase(request);
+            var result = (ObjectResult?)response.Result;
+            Assert.AreEqual(result!.StatusCode, (int)HttpStatusCode.OK);
+        }
+
         [TestMethod("Should be able to generate code")]
         public async Task GenerateCode()
         {

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Polaris.Domain.Configuration;
 using Polaris.Domain.Dto.Application;
 using Polaris.Domain.Dto.Authentication;
@@ -15,6 +16,7 @@ using Polaris.Service;
 
 namespace Polaris.Configuration
 {
+    [ExcludeFromCodeCoverage]
     public static class DependencyConfiguration
     {
         public static void InjectDependencies(this IServiceCollection services)
@@ -41,6 +43,7 @@ namespace Polaris.Configuration
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IMemberRepository, MemberRepository>();
             services.AddTransient<IAuthenticationRepository, AuthenticationRepository>();
+            services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
         }
 
         private static void InjectServices(IServiceCollection services)

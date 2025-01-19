@@ -7,13 +7,13 @@ namespace Polaris.Domain.Migrations
 {
     [ExcludeFromCodeCoverage]
     /// <inheritdoc />
-    public partial class RemoveTypeAuthentication : Migration
+    public partial class RemoveRefreshTokenFromAuthentication : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "type",
+                name: "refreshToken",
                 table: "authentication");
         }
 
@@ -21,13 +21,12 @@ namespace Polaris.Domain.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "type",
+                name: "refreshToken",
                 table: "authentication",
                 type: "varchar(100)",
                 unicode: false,
                 maxLength: 100,
-                nullable: false,
-                defaultValue: "");
+                nullable: true);
         }
     }
 }

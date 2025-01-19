@@ -166,7 +166,10 @@ namespace Polaris.Test.Repository
                         ApplicationId = Guid.NewGuid(),
                         AuthenticationNavigation = new Authentication
                         {
-                            RefreshToken = Guid.NewGuid().ToString()
+                            RefreshTokenNavigation = new List<RefreshToken>
+                            {
+                                new RefreshToken()
+                            }
                         }
                     }
                 }

@@ -117,6 +117,24 @@ namespace Polaris.Test.Repository
             Assert.IsTrue(exists);
         }
 
+        [TestMethod("Should be able name already exists")]
+        public async Task NameAlreadyExists()
+        {
+            var entity = await CreateMockApplication();
+            var exists = await _repository.NameAlreadyExists(entity);
+            Assert.IsFalse(exists);
+        }
+
+        [TestMethod("Should not be able name already exists")]
+        public async Task NotNameAlreadyExists()
+        {
+            var entity = await CreateMockApplication();
+            _context.Application.Add(new Application { Id = Guid.NewGuid(), Name = entity.Name });
+            await _context.SaveChangesAsync();
+            var exists = await _repository.NameAlreadyExists(entity);
+            Assert.IsTrue(exists);
+        }
+
         private async Task<Application> CreateMockApplication()
         {
             var entity = new Application

@@ -30,6 +30,9 @@ namespace Polaris.Test.Service
         public void Teardown()
         {
             _repository.Reset();
+            _authenticationRepository.Reset();
+            _applicationRepository.Reset();
+            _userRepository.Reset();
         }
 
         private MemberService CreateService()
@@ -242,7 +245,10 @@ namespace Polaris.Test.Service
                     AuthenticationNavigation = new Authentication
                     {
                         Id = authenticationId,
-                        RefreshToken = Guid.NewGuid().ToString()
+                        RefreshTokenNavigation = new List<RefreshToken>
+                        {
+                            new RefreshToken()
+                        }
                     },
                     UserNavigation = new User
                     {
@@ -286,7 +292,10 @@ namespace Polaris.Test.Service
                     AuthenticationNavigation = new Authentication
                     {
                         Id = authenticationId,
-                        RefreshToken = Guid.NewGuid().ToString()
+                        RefreshTokenNavigation = new List<RefreshToken>
+                        {
+                            new RefreshToken()
+                        }
                     },
                     UserNavigation = new User
                     {

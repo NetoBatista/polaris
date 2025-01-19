@@ -73,7 +73,10 @@ namespace Polaris.Test.Repository
                 },
                 AuthenticationNavigation = new Authentication
                 {
-                    RefreshToken = Guid.NewGuid().ToString()
+                    RefreshTokenNavigation = new List<RefreshToken>
+                    {
+                        new RefreshToken()
+                    }
                 },
                 UserNavigation = new User
                 {

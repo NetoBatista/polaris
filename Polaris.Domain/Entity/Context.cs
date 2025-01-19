@@ -21,6 +21,8 @@ namespace Polaris.Domain.Entity
         public virtual DbSet<Member> Member { get; set; }
 
         public virtual DbSet<User> User { get; set; }
+        
+        public virtual DbSet<RefreshToken> RefreshToken { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -80,11 +82,6 @@ namespace Polaris.Domain.Entity
                     .IsUnicode(false)
                     .HasColumnName("password");
 
-                entity.Property(e => e.RefreshToken)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("refreshToken");
-
                 entity.HasOne(d => d.MemberNavigation).WithOne(x => x.AuthenticationNavigation)
                     .HasForeignKey<Authentication>(d => d.MemberId)
                     .OnDelete(DeleteBehavior.Cascade)
@@ -141,6 +138,21 @@ namespace Polaris.Domain.Entity
                     .HasMaxLength(256)
                     .IsUnicode(false)
                     .HasColumnName("name");
+            });
+            
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK_REFRESH_TOKEN");
+
+                entity.ToTable("refreshToken");
+
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.HasOne(d => d.AuthenticationNavigation)
+                      .WithMany(p => p.RefreshTokenNavigation)
+                      .HasForeignKey(d => d.AuthenticationId)
+                      .OnDelete(DeleteBehavior.ClientSetNull)
+                      .HasConstraintName("FK_REFRESH_TOKEN_AUTHENTICATION");
             });
 
             OnModelCreatingPartial(modelBuilder);

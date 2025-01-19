@@ -7,8 +7,6 @@ namespace Polaris.Domain.Dto.Member
 
         public Guid ApplicationId { get; set; }
 
-        public string AuthenticationType { get; set; } = null!;
-
         public string? Password { get; set; }
     }
 }

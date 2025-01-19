@@ -55,6 +55,11 @@ namespace Polaris.Repository
             return true;
         }
 
+        public Task<Authentication?> GetById(Guid id)
+        {
+            return _context.Authentication.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
         public Task<Authentication?> GetByEmailApplication(AuthenticationByUserApplicationModel model)
         {
             var email = model.Email ?? string.Empty;
@@ -65,21 +70,6 @@ namespace Polaris.Repository
                                           .ThenInclude(x => x.ApplicationNavigation)
                                           .FirstOrDefaultAsync(x => x.MemberNavigation.UserNavigation.Email.ToUpper() == email.ToUpper() &&
                                                                     x.MemberNavigation.ApplicationNavigation.Id == model.ApplicationId);
-        }
-
-        public Task<Authentication?> GetByRefreshToken(Authentication authentication)
-        {
-            return _context.Authentication.FirstOrDefaultAsync(x => x.RefreshToken == authentication.RefreshToken);
-        }
-
-        public async Task<Authentication> RefreshToken(Authentication authentication)
-        {
-            var entity = await _context.Authentication.AsNoTracking()
-                                                      .FirstAsync(x => x.Id == authentication.Id);
-            entity.RefreshToken = Guid.NewGuid().ToString();
-            _context.Update(entity);
-            await _context.SaveChangesAsync();
-            return entity;
         }
 
         public async Task<Authentication> GenerateCode(Authentication authentication)

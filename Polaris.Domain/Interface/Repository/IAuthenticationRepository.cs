@@ -11,8 +11,6 @@ namespace Polaris.Domain.Interface.Repository
 
         Task<bool> ChangePassword(Authentication authentication);
 
-        Task<Authentication> RefreshToken(Authentication authentication);
-
         Task<Authentication> GenerateCode(Authentication authentication);
 
         Task<bool> CanValidateCode(Authentication authentication);
@@ -21,8 +19,8 @@ namespace Polaris.Domain.Interface.Repository
 
         Task<Authentication?> GetByEmailApplication(AuthenticationByUserApplicationModel model);
 
-        Task<Authentication?> GetByRefreshToken(Authentication authentication);
-
         Task ClearCodeConfirmation(Authentication authentication);
+
+        Task<Authentication?> GetById(Guid id);
     }
 }
