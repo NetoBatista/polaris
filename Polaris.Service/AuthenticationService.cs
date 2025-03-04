@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using FirebaseAdmin;
+using FirebaseAdmin.Auth;
 using Microsoft.IdentityModel.Tokens;
 using Polaris.Domain.Configuration;
 using Polaris.Domain.Constant;
@@ -10,18 +11,19 @@ using Polaris.Domain.Interface.Service;
 using Polaris.Domain.Interface.Validator;
 using Polaris.Domain.Mapper;
 using Polaris.Domain.Model;
+using Polaris.Domain.Model.Authentication;
+using Polaris.Domain.Model.Event;
+using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using FirebaseAdmin;
-using FirebaseAdmin.Auth;
 
 namespace Polaris.Service
 {
     public class AuthenticationService : IAuthenticationService
     {
         private static readonly ConcurrentDictionary<string, FirebaseApp> FirebaseApps = new();
-
+        private readonly IEventService _eventService;
         private readonly IAuthenticationRepository _authenticationRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMemberRepository _memberRepository;
@@ -33,6 +35,7 @@ namespace Polaris.Service
         public AuthenticationService(IAuthenticationRepository authenticationRepository,
                                      IUserRepository userRepository,
                                      IMemberRepository memberRepository,
+                                     IEventService eventService,
                                      IValidator<AuthenticationRequestDTO> authenticatorValidator,
                                      IValidator<AuthenticationFirebaseRequestDTO> authenticatorFirebaseValidator,
                                      IValidator<AuthenticationGenerateCodeRequestDTO> authenticatorGenerateCodeValidator,
@@ -42,6 +45,7 @@ namespace Polaris.Service
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
             _memberRepository = memberRepository;
+            _eventService = eventService;
             _authenticatorValidator = authenticatorValidator;
             _authenticatorGenerateCodeValidator = authenticatorGenerateCodeValidator;
             _authenticatorRefreshTokenValidator = authenticatorRefreshTokenValidator;
@@ -102,6 +106,13 @@ namespace Polaris.Service
                 return ResponseBaseModel.BadRequest("Invalid credentials");
             }
 
+            var content = new EventAuthenticationModel
+            {
+                UserId = entity.MemberNavigation.UserNavigation.Id,
+                UserEmail = entity.MemberNavigation.UserNavigation.Email,
+                ApplicationId = entity.MemberNavigation.ApplicationId
+            };
+            _ = _eventService.SendMessage(EventConstant.AuthenticateCode, content);
             var response = await GenerateAuthenticationResponseDto(request.Email, entity);
             return ResponseBaseModel.Ok(response);
         }
@@ -144,6 +155,13 @@ namespace Polaris.Service
                 return ResponseBaseModel.BadRequest("Invalid credentials");
             }
 
+            var content = new EventAuthenticationModel
+            {
+                UserId = entity.MemberNavigation.UserNavigation.Id,
+                UserEmail = entity.MemberNavigation.UserNavigation.Email,
+                ApplicationId = entity.MemberNavigation.ApplicationId
+            };
+            _ = _eventService.SendMessage(EventConstant.AuthenticateFirebase, content);
             var response = await GenerateAuthenticationResponseDto(request.Email, entity);
             return ResponseBaseModel.Ok(response);
         }
@@ -160,7 +178,7 @@ namespace Polaris.Service
             var token = GenerateToken(UserMapper.ToResponseDTO(userResponse!));
             var response = new AuthenticationResponseDTO
             {
-                Expire = TokenConfig.Expire * 60,
+                Expire = TokenConfiguration.Expire * 60,
                 Token = token,
                 RefreshToken = authentication.RefreshToken!
             };
@@ -187,8 +205,15 @@ namespace Polaris.Service
                 return ResponseBaseModel.BadRequest("Email or application not found");
             }
 
-            await _authenticationRepository.GenerateCode(entity);
-
+            var authentication = await _authenticationRepository.GenerateCode(entity);
+            var content = new EventGenerateCodeModel
+            {
+                UserId = entity.MemberNavigation.UserNavigation.Id,
+                UserEmail = entity.MemberNavigation.UserNavigation.Email,
+                ApplicationId = entity.MemberNavigation.ApplicationId,
+                Code = authentication.Code!
+            };
+            _ = _eventService.SendMessage(EventConstant.GenerateCode, content);
             return ResponseBaseModel.Ok();
         }
 
@@ -217,7 +242,7 @@ namespace Polaris.Service
             var token = GenerateToken(UserMapper.ToResponseDTO(member.First().UserNavigation));
             var response = new AuthenticationResponseDTO
             {
-                Expire = TokenConfig.Expire * 60,
+                Expire = TokenConfiguration.Expire * 60,
                 Token = token,
                 RefreshToken = authentication.RefreshToken!
             };
@@ -262,7 +287,7 @@ namespace Polaris.Service
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var key = Encoding.ASCII.GetBytes(TokenConfig.Secret);
+            var key = Encoding.ASCII.GetBytes(TokenConfiguration.Secret);
 
             var claims = new List<Claim>
             {
@@ -272,7 +297,7 @@ namespace Polaris.Service
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(TokenConfig.Expire),
+                Expires = DateTime.UtcNow.AddMinutes(TokenConfiguration.Expire),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

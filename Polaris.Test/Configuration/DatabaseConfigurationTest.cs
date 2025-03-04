@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Polaris.Configuration;
 using Polaris.Domain.Configuration;
 
 namespace Polaris.Test.Configuration;
@@ -35,8 +33,8 @@ public class DatabaseConfigurationTest
     [TestMethod("Should be able configure in memory")]
     public void ShoudBeAbleConfigureInMemory()
     {
-        DatabaseConfiguration.ConfigureDatabase(_builder);
-        Assert.IsNotNull(DatabaseConfig.ConnectionString);
+        DatabaseConfiguration.Configure(_builder.Configuration);
+        Assert.IsNotNull(DatabaseConfiguration.ConnectionString);
     }
 
     [TestMethod("Should be able configure environment")]
@@ -45,8 +43,8 @@ public class DatabaseConfigurationTest
         var connectionString = Guid.NewGuid().ToString();
         Environment.SetEnvironmentVariable("ConnectionString", connectionString);
 
-        DatabaseConfiguration.ConfigureDatabase(_builder);
-        Assert.AreEqual(DatabaseConfig.ConnectionString, connectionString);
+        DatabaseConfiguration.Configure(_builder.Configuration);
+        Assert.AreEqual(DatabaseConfiguration.ConnectionString, connectionString);
     }
 
     [TestMethod("Should not be able configure")]
@@ -54,6 +52,6 @@ public class DatabaseConfigurationTest
     {
         var options = new WebApplicationOptions();
         var builder = WebApplication.CreateEmptyBuilder(options);
-        Assert.ThrowsException<Exception>(() => DatabaseConfiguration.ConfigureDatabase(builder));
+        Assert.ThrowsException<Exception>(() => DatabaseConfiguration.Configure(builder.Configuration));
     }
 }

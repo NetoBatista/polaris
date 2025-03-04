@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Polaris.Domain.Constant;
 using Polaris.Domain.Entity;
-using Polaris.Domain.Model;
+using Polaris.Domain.Model.Authentication;
 using Polaris.Repository;
 using Polaris.Test.Util;
 

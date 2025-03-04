@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Polaris.Domain.Constant;
 using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
-using Polaris.Domain.Model;
+using Polaris.Domain.Model.Authentication;
 
 namespace Polaris.Repository
 {
@@ -85,7 +84,7 @@ namespace Polaris.Repository
         public async Task<Authentication> GenerateCode(Authentication authentication)
         {
             var entity = await _context.Authentication.AsNoTracking()
-                                                                  .FirstAsync(x => x.Id == authentication.Id);
+                                                      .FirstAsync(x => x.Id == authentication.Id);
             entity.Code = CodeConfirmation();
             entity.CodeExpiration = DateTime.UtcNow.AddMinutes(5);
             entity.CodeAttempt = 0;

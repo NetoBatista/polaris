@@ -1,6 +1,7 @@
-using System.Diagnostics.CodeAnalysis;
 using Polaris.Configuration;
+using Polaris.Domain.Configuration;
 using Polaris.Extension;
+using System.Diagnostics.CodeAnalysis;
 
 [ExcludeFromCodeCoverage]
 public static class Program
@@ -13,8 +14,10 @@ public static class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        builder.ConfigureDatabase();
-        builder.ConfigureToken();
+        DatabaseConfiguration.Configure(builder.Configuration);
+        TokenConfiguration.Configure(builder.Configuration);
+        ServiceBusConfiguration.Configure(builder.Configuration);
+
         builder.Services.InjectDependencies();
         builder.Services.ExecuteMigrations();
 

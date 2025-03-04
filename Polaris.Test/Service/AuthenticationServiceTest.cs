@@ -1,10 +1,11 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Configuration;
+using Moq;
 using Polaris.Domain.Configuration;
-using Polaris.Domain.Constant;
 using Polaris.Domain.Dto.Authentication;
 using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
-using Polaris.Domain.Model;
+using Polaris.Domain.Interface.Service;
+using Polaris.Domain.Model.Authentication;
 using Polaris.Domain.Validator.Authentication;
 using Polaris.Service;
 using System.Net;
@@ -14,20 +15,33 @@ namespace Polaris.Test.Service
     [TestClass]
     public class AuthenticationServiceTest
     {
-        public AuthenticationServiceTest()
-        {
-            TokenConfig.Expire = 5;
-            TokenConfig.Secret = Guid.NewGuid().ToString();
-        }
-
         private Mock<IAuthenticationRepository> _repository;
+        private Mock<IEventService> _eventService;
         private Mock<IUserRepository> _userRepository;
         private Mock<IMemberRepository> _memberRepository;
+
+        public AuthenticationServiceTest()
+        {
+            var secret = Guid.NewGuid().ToString();
+            var expire = 5;
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                {"JwtToken:Secret", secret},
+                {"JwtToken:Expire", expire.ToString()},
+            };
+
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings!)
+                .Build();
+
+            TokenConfiguration.Configure(configuration);
+        }
 
         [TestInitialize]
         public void Setup()
         {
             _repository = new Mock<IAuthenticationRepository>();
+            _eventService = new Mock<IEventService>();
             _memberRepository = new Mock<IMemberRepository>();
             _userRepository = new Mock<IUserRepository>();
         }
@@ -48,6 +62,7 @@ namespace Polaris.Test.Service
             return new AuthenticationService(_repository.Object,
                                             _userRepository.Object,
                                             _memberRepository.Object,
+                                            _eventService.Object,
                                             authenticatorValidator,
                                             authenticatorFirebaseValidator,
                                             authenticatorGenerateCodeValidator,
@@ -596,7 +611,8 @@ namespace Polaris.Test.Service
 
             _repository.Setup(x => x.GetByEmailApplication(It.IsAny<AuthenticationByUserApplicationModel>()))
                        .ReturnsAsync(entity);
-            _repository.Setup(x => x.GenerateCode(It.IsAny<Authentication>()));
+            _repository.Setup(x => x.GenerateCode(It.IsAny<Authentication>()))
+                       .ReturnsAsync(new Authentication { Code = Guid.NewGuid().ToString() });
 
 
             var service = CreateService();

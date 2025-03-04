@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Polaris.Controllers;
-using Polaris.Domain.Constant;
 using Polaris.Domain.Dto.Member;
 using Polaris.Domain.Interface.Service;
 using Polaris.Domain.Model;

@@ -1,5 +1,4 @@
-﻿using Polaris.Domain.Constant;
-using Polaris.Domain.Dto.Member;
+﻿using Polaris.Domain.Dto.Member;
 using Polaris.Domain.Entity;
 using Polaris.Domain.Interface.Repository;
 using Polaris.Domain.Interface.Validator;

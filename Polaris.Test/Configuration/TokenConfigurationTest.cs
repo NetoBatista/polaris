@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Polaris.Configuration;
 using Polaris.Domain.Configuration;
 
 namespace Polaris.Test.Configuration;
@@ -31,9 +29,9 @@ public class TokenConfigurationTest
     [TestMethod("Should be able configure in memory")]
     public void ShoudBeAbleConfigureInMemory()
     {
-        TokenConfiguration.ConfigureToken(_builder);
-        Assert.IsNotNull(TokenConfig.Secret);
-        Assert.IsNotNull(TokenConfig.Expire);
+        TokenConfiguration.Configure(_builder.Configuration);
+        Assert.IsNotNull(TokenConfiguration.Secret);
+        Assert.IsNotNull(TokenConfiguration.Expire);
     }
 
     [TestMethod("Should not be able configure secret")]
@@ -41,7 +39,7 @@ public class TokenConfigurationTest
     {
         var options = new WebApplicationOptions();
         var builder = WebApplication.CreateEmptyBuilder(options);
-        Assert.ThrowsException<Exception>(() => TokenConfiguration.ConfigureToken(builder));
+        Assert.ThrowsException<Exception>(() => TokenConfiguration.Configure(builder.Configuration));
     }
 
     [TestMethod("Should not be able configure expire")]
@@ -60,6 +58,6 @@ public class TokenConfigurationTest
         var options = new WebApplicationOptions();
         var builder = WebApplication.CreateEmptyBuilder(options);
         builder.Configuration.AddConfiguration(configuration);
-        Assert.ThrowsException<Exception>(() => TokenConfiguration.ConfigureToken(builder));
+        Assert.ThrowsException<Exception>(() => TokenConfiguration.Configure(builder.Configuration));
     }
 }

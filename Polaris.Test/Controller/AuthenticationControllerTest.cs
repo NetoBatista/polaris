@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Polaris.Controllers;
-using Polaris.Domain.Constant;
 using Polaris.Domain.Dto.Authentication;
 using Polaris.Domain.Interface.Service;
 using Polaris.Domain.Model;
@@ -45,6 +44,33 @@ namespace Polaris.Test.Controller
 
             var controller = CreateController();
             var response = await controller.Authenticate(request);
+            var result = (ObjectResult?)response.Result;
+            Assert.AreEqual(result!.StatusCode, (int)HttpStatusCode.OK);
+        }
+
+        [TestMethod("Should be able to authenticate with firebase")]
+        public async Task AuthenticateFirebase()
+        {
+            var request = new AuthenticationFirebaseRequestDTO
+            {
+                ApplicationId = Guid.NewGuid(),
+                FirebaseAppId = Guid.NewGuid().ToString(),
+                JsonCredentials = Guid.NewGuid().ToString(),
+                TokenFirebase = Guid.NewGuid().ToString(),
+                Email = $"{Guid.NewGuid()}@email.com"
+            };
+
+            var responseDTO = new AuthenticationResponseDTO
+            {
+                Token = "token",
+                Expire = 5,
+                RefreshToken = Guid.NewGuid().ToString(),
+            };
+            var responseBase = ResponseBaseModel.Ok(responseDTO);
+            _service.Setup(x => x.AuthenticateFirebase(It.IsAny<AuthenticationFirebaseRequestDTO>())).ReturnsAsync(responseBase);
+
+            var controller = CreateController();
+            var response = await controller.AuthenticateFirebase(request);
             var result = (ObjectResult?)response.Result;
             Assert.AreEqual(result!.StatusCode, (int)HttpStatusCode.OK);
         }

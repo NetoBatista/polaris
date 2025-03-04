@@ -1,4 +1,4 @@
-﻿namespace Polaris.Domain.Model
+﻿namespace Polaris.Domain.Model.Authentication
 {
     public class AuthenticationByUserApplicationModel
     {

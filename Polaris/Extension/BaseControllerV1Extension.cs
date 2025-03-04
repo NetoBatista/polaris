@@ -1,5 +1,5 @@
-﻿using Polaris.Domain.Model;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Polaris.Domain.Model;
 
 namespace Polaris.Extension
 {
