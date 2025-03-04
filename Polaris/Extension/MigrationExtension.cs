@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Polaris.Domain.Interface.Service;
+﻿using Polaris.Domain.Interface.Service;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Polaris.Extension
 {

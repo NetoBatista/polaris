@@ -20,7 +20,7 @@ namespace Polaris.Domain.Validator.Authentication
             ApplicationValidate();
             return _resultModel;
         }
-        
+
         private void FirebaseAppIdValidate()
         {
             if (string.IsNullOrEmpty(_instance.FirebaseAppId))
@@ -28,7 +28,7 @@ namespace Polaris.Domain.Validator.Authentication
                 _resultModel.Errors.Add("JsonCredentials cannot be empty");
             }
         }
-        
+
         private void FirebaseCredentialsValidate()
         {
             if (string.IsNullOrEmpty(_instance.JsonCredentials))

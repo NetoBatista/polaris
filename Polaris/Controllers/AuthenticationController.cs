@@ -19,7 +19,7 @@ namespace Polaris.Controllers
             var response = await _authenticationService.Authenticate(request);
             return ToObjectResult(response);
         }
-        
+
         [HttpPost("Firebase")]
         public async Task<ActionResult<AuthenticationResponseDTO>> AuthenticateFirebase([FromBody] AuthenticationFirebaseRequestDTO request)
         {

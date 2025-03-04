@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Polaris.Domain.Configuration;
 using Polaris.Domain.Dto.Application;
 using Polaris.Domain.Dto.Authentication;
@@ -13,6 +12,7 @@ using Polaris.Domain.Validator.Application;
 using Polaris.Domain.Validator.Authentication;
 using Polaris.Repository;
 using Polaris.Service;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Polaris.Configuration
 {
@@ -31,7 +31,7 @@ namespace Polaris.Configuration
         {
             services.AddDbContext<PolarisContext>(options =>
             {
-                options.UseSqlServer(DatabaseConfig.ConnectionString);
+                options.UseSqlServer(DatabaseConfiguration.ConnectionString);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, ServiceLifetime.Transient);
         }
@@ -52,6 +52,7 @@ namespace Polaris.Configuration
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IMemberService, MemberService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
+            services.AddSingleton<IEventService, EventService>();
         }
 
         private static void InjectValidator(IServiceCollection services)

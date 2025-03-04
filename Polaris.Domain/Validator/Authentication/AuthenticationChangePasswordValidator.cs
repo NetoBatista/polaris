@@ -1,9 +1,8 @@
-﻿using Polaris.Domain.Constant;
-using Polaris.Domain.Dto.Authentication;
-using Polaris.Domain.Entity;
+﻿using Polaris.Domain.Dto.Authentication;
 using Polaris.Domain.Interface.Repository;
 using Polaris.Domain.Interface.Validator;
 using Polaris.Domain.Model;
+using Polaris.Domain.Model.Authentication;
 
 namespace Polaris.Domain.Validator.Authentication
 {

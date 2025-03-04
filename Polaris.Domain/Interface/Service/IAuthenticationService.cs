@@ -6,7 +6,7 @@ namespace Polaris.Domain.Interface.Service
     public interface IAuthenticationService
     {
         Task<ResponseBaseModel> Authenticate(AuthenticationRequestDTO request);
-        
+
         Task<ResponseBaseModel> AuthenticateFirebase(AuthenticationFirebaseRequestDTO request);
 
         Task<ResponseBaseModel> GenerateCode(AuthenticationGenerateCodeRequestDTO request);

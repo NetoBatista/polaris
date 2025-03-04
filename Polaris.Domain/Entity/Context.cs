@@ -1,5 +1,5 @@
-﻿using Polaris.Domain.Configuration;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Polaris.Domain.Configuration;
 
 namespace Polaris.Domain.Entity
 {
@@ -26,7 +26,7 @@ namespace Polaris.Domain.Entity
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(DatabaseConfig.ConnectionString);
+                optionsBuilder.UseSqlServer(DatabaseConfiguration.ConnectionString);
             }
             optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }

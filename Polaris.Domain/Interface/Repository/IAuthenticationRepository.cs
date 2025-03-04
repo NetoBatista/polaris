@@ -1,5 +1,5 @@
 using Polaris.Domain.Entity;
-using Polaris.Domain.Model;
+using Polaris.Domain.Model.Authentication;
 
 namespace Polaris.Domain.Interface.Repository
 {
