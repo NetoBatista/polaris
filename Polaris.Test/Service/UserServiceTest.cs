@@ -12,7 +12,7 @@ namespace Polaris.Test.Service
     [TestClass]
     public class UserServiceTest
     {
-        private Mock<IUserRepository> _repository;
+        private Mock<IUserRepository> _repository = new Mock<IUserRepository>();
 
         [TestInitialize]
         public void Setup()

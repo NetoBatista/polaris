@@ -9,8 +9,7 @@ namespace Polaris.Domain.Entity
         {
         }
 
-        public PolarisContext(DbContextOptions<PolarisContext> options)
-            : base(options)
+        public PolarisContext(DbContextOptions<PolarisContext> options) : base(options)
         {
         }
 
@@ -21,6 +20,8 @@ namespace Polaris.Domain.Entity
         public virtual DbSet<Member> Member { get; set; }
 
         public virtual DbSet<User> User { get; set; }
+
+        public virtual DbSet<RefreshToken> RefreshToken { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -80,11 +81,6 @@ namespace Polaris.Domain.Entity
                     .IsUnicode(false)
                     .HasColumnName("password");
 
-                entity.Property(e => e.RefreshToken)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("refreshToken");
-
                 entity.HasOne(d => d.MemberNavigation).WithOne(x => x.AuthenticationNavigation)
                     .HasForeignKey<Authentication>(d => d.MemberId)
                     .OnDelete(DeleteBehavior.Cascade)
@@ -113,6 +109,22 @@ namespace Polaris.Domain.Entity
                 entity.HasOne(d => d.UserNavigation).WithMany(p => p.MemberNavigation)
                     .HasForeignKey(d => d.UserId)
                     .HasConstraintName("FK_MEMBER_USER");
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK_REFRESH_TOKEN");
+
+                entity.ToTable("refreshToken");
+
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.Expiration).HasColumnType("datetime");
+                entity.Property(e => e.Token).IsUnicode(false);
+
+                entity.HasOne(d => d.AuthenticationNavigaton).WithMany(p => p.RefreshTokenNavigation)
+                    .HasForeignKey(d => d.AuthenticationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_REFRESH_TOKEN_AUTHENTICATION");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -150,29 +162,15 @@ namespace Polaris.Domain.Entity
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var entities = ChangeTracker.Entries().Where(e => e.State == EntityState.Added ||
-                                                              e.State == EntityState.Modified ||
-                                                              e.State == EntityState.Deleted).ToList();
-
             var result = await base.SaveChangesAsync(cancellationToken);
-            foreach (var entity in entities)
-            {
-                Entry(entity.Entity).State = EntityState.Detached;
-            }
+            ChangeTracker.Clear();
             return result;
         }
 
         public override int SaveChanges()
         {
-            var entities = ChangeTracker.Entries().Where(e => e.State == EntityState.Added ||
-                                                              e.State == EntityState.Modified ||
-                                                              e.State == EntityState.Deleted).ToList();
-
             var result = base.SaveChanges();
-            foreach (var entity in entities)
-            {
-                Entry(entity.Entity).State = EntityState.Detached;
-            }
+            ChangeTracker.Clear();
             return result;
         }
     }

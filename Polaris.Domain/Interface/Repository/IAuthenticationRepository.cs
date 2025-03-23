@@ -7,11 +7,11 @@ namespace Polaris.Domain.Interface.Repository
     {
         Task<Authentication> Create(Authentication authentication);
 
+        Task<Authentication?> GetById(Guid id);
+
         Task<bool> AuthenticatePassword(AuthenticationPasswordModel model);
 
         Task<bool> ChangePassword(Authentication authentication);
-
-        Task<Authentication> RefreshToken(Authentication authentication);
 
         Task<Authentication> GenerateCode(Authentication authentication);
 
@@ -20,8 +20,6 @@ namespace Polaris.Domain.Interface.Repository
         Task<bool> AuthenticateCode(Authentication authentication);
 
         Task<Authentication?> GetByEmailApplication(AuthenticationByUserApplicationModel model);
-
-        Task<Authentication?> GetByRefreshToken(Authentication authentication);
 
         Task ClearCodeConfirmation(Authentication authentication);
     }

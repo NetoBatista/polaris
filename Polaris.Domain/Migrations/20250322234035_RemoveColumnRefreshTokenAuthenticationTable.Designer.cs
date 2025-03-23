@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Polaris.Domain.Entity;
 
@@ -11,11 +12,12 @@ using Polaris.Domain.Entity;
 
 namespace Polaris.Domain.Migrations
 {
-    [ExcludeFromCodeCoverage]
     [DbContext(typeof(PolarisContext))]
-    partial class PolarisContextModelSnapshot : ModelSnapshot
+    [Migration("20250322234035_RemoveColumnRefreshTokenAuthenticationTable")]
+    partial class RemoveColumnRefreshTokenAuthenticationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

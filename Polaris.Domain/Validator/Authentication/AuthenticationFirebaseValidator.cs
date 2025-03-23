@@ -1,10 +1,11 @@
 ﻿using Polaris.Domain.Dto.Authentication;
 using Polaris.Domain.Interface.Validator;
 using Polaris.Domain.Model;
-using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Polaris.Domain.Validator.Authentication
 {
+    [ExcludeFromCodeCoverage]
     public class AuthenticationFirebaseValidator : IValidator<AuthenticationFirebaseRequestDTO>
     {
         private ValidatorResultModel _resultModel = new();
@@ -16,7 +17,6 @@ namespace Polaris.Domain.Validator.Authentication
             TokenFirebaseValidate();
             FirebaseAppIdValidate();
             FirebaseCredentialsValidate();
-            EmailValidate();
             ApplicationValidate();
             return _resultModel;
         }
@@ -42,22 +42,6 @@ namespace Polaris.Domain.Validator.Authentication
             if (string.IsNullOrEmpty(_instance.TokenFirebase))
             {
                 _resultModel.Errors.Add("TokenFirebase cannot be empty");
-            }
-        }
-
-        private void EmailValidate()
-        {
-            if (string.IsNullOrEmpty(_instance.Email))
-            {
-                _resultModel.Errors.Add("Email is required");
-            }
-            else
-            {
-                var attribute = new EmailAddressAttribute();
-                if (!attribute.IsValid(_instance.Email))
-                {
-                    _resultModel.Errors.Add("Email is not valid");
-                }
             }
         }
 

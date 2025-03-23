@@ -1,8 +1,11 @@
-﻿namespace Polaris.Domain.Dto.Authentication
+﻿using System.Text.Json.Serialization;
+
+namespace Polaris.Domain.Dto.Authentication
 {
     public class AuthenticationFirebaseRequestDTO
     {
-        public string Email { get; set; } = null!;
+        [JsonIgnore]
+        public string Email { get; set; } = string.Empty;
 
         public Guid ApplicationId { get; set; }
 

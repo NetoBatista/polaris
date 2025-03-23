@@ -9,8 +9,8 @@ namespace Polaris.Test.Repository
     [TestClass]
     public class UserRepositoryTest
     {
-        private UserRepository _repository;
-        private PolarisContext _context;
+        private UserRepository _repository = new(new());
+        private PolarisContext _context = new();
 
         [TestInitialize]
         public void Setup()
@@ -166,7 +166,7 @@ namespace Polaris.Test.Repository
                         ApplicationId = Guid.NewGuid(),
                         AuthenticationNavigation = new Authentication
                         {
-                            RefreshToken = Guid.NewGuid().ToString()
+
                         }
                     }
                 }

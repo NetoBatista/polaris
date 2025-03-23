@@ -27,6 +27,7 @@ namespace Polaris.Service
         private readonly IAuthenticationRepository _authenticationRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMemberRepository _memberRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IValidator<AuthenticationRequestDTO> _authenticatorValidator;
         private readonly IValidator<AuthenticationFirebaseRequestDTO> _authenticatorFirebaseValidator;
         private readonly IValidator<AuthenticationRefreshTokenRequestDTO> _authenticatorRefreshTokenValidator;
@@ -36,6 +37,7 @@ namespace Polaris.Service
                                      IUserRepository userRepository,
                                      IMemberRepository memberRepository,
                                      IEventService eventService,
+                                     IRefreshTokenRepository refreshTokenRepository,
                                      IValidator<AuthenticationRequestDTO> authenticatorValidator,
                                      IValidator<AuthenticationFirebaseRequestDTO> authenticatorFirebaseValidator,
                                      IValidator<AuthenticationGenerateCodeRequestDTO> authenticatorGenerateCodeValidator,
@@ -46,6 +48,7 @@ namespace Polaris.Service
             _userRepository = userRepository;
             _memberRepository = memberRepository;
             _eventService = eventService;
+            _refreshTokenRepository = refreshTokenRepository;
             _authenticatorValidator = authenticatorValidator;
             _authenticatorGenerateCodeValidator = authenticatorGenerateCodeValidator;
             _authenticatorRefreshTokenValidator = authenticatorRefreshTokenValidator;
@@ -112,7 +115,7 @@ namespace Polaris.Service
                 UserEmail = entity.MemberNavigation.UserNavigation.Email,
                 ApplicationId = entity.MemberNavigation.ApplicationId
             };
-            _ = _eventService.SendMessage(EventConstant.AuthenticateCode, content);
+            await _eventService.SendMessage(EventConstant.AuthenticateCode, content);
             var response = await GenerateAuthenticationResponseDto(request.Email, entity);
             return ResponseBaseModel.Ok(response);
         }
@@ -123,6 +126,26 @@ namespace Polaris.Service
             if (!responseValidate.IsValid)
             {
                 return ResponseBaseModel.BadRequest(responseValidate.Errors);
+            }
+
+            var isValid = false;
+
+            try
+            {
+                var firebaseApp = GetFirebaseApp(request.FirebaseAppId, request.JsonCredentials);
+                var decodedToken = await FirebaseAuth.GetAuth(firebaseApp).VerifyIdTokenAsync(request.TokenFirebase);
+                decodedToken.Claims.TryGetValue(ClaimConstant.Email, out object? email);
+                request.Email = email?.ToString() ?? string.Empty;
+                isValid = decodedToken != null;
+            }
+            catch
+            {
+                isValid = false;
+            }
+
+            if (!isValid)
+            {
+                return ResponseBaseModel.BadRequest("Invalid credentials");
             }
 
             var model = new AuthenticationByUserApplicationModel
@@ -137,31 +160,13 @@ namespace Polaris.Service
                 return ResponseBaseModel.BadRequest("Email or application not found");
             }
 
-            var isValid = false;
-
-            try
-            {
-                var firebaseApp = GetFirebaseApp(request.FirebaseAppId, request.JsonCredentials);
-                var decodedToken = await FirebaseAuth.GetAuth(firebaseApp).VerifyIdTokenAsync(request.TokenFirebase);
-                isValid = decodedToken != null;
-            }
-            catch
-            {
-                isValid = false;
-            }
-
-            if (!isValid)
-            {
-                return ResponseBaseModel.BadRequest("Invalid credentials");
-            }
-
             var content = new EventAuthenticationModel
             {
                 UserId = entity.MemberNavigation.UserNavigation.Id,
                 UserEmail = entity.MemberNavigation.UserNavigation.Email,
                 ApplicationId = entity.MemberNavigation.ApplicationId
             };
-            _ = _eventService.SendMessage(EventConstant.AuthenticateFirebase, content);
+            await _eventService.SendMessage(EventConstant.AuthenticateFirebase, content);
             var response = await GenerateAuthenticationResponseDto(request.Email, entity);
             return ResponseBaseModel.Ok(response);
         }
@@ -173,14 +178,14 @@ namespace Polaris.Service
                 Email = email
             };
             var userResponse = await _userRepository.Get(userEntity);
-            var authentication = await _authenticationRepository.RefreshToken(entity);
             await _authenticationRepository.ClearCodeConfirmation(entity);
             var token = GenerateToken(UserMapper.ToResponseDTO(userResponse!));
+            var refreshToken = await _refreshTokenRepository.Create(entity.Id);
             var response = new AuthenticationResponseDTO
             {
                 Expire = TokenConfiguration.Expire * 60,
                 Token = token,
-                RefreshToken = authentication.RefreshToken!
+                RefreshToken = refreshToken.Token
             };
             return response;
         }
@@ -211,9 +216,10 @@ namespace Polaris.Service
                 UserId = entity.MemberNavigation.UserNavigation.Id,
                 UserEmail = entity.MemberNavigation.UserNavigation.Email,
                 ApplicationId = entity.MemberNavigation.ApplicationId,
-                Code = authentication.Code!
+                Code = authentication.Code!,
+                ApplicationName = entity.MemberNavigation.ApplicationNavigation.Name
             };
-            _ = _eventService.SendMessage(EventConstant.GenerateCode, content);
+            await _eventService.SendMessage(EventConstant.GenerateCode, content);
             return ResponseBaseModel.Ok();
         }
 
@@ -225,15 +231,27 @@ namespace Polaris.Service
                 return ResponseBaseModel.BadRequest(responseValidate.Errors);
             }
 
-            var entity = new Authentication { RefreshToken = request.RefreshToken.ToString() };
-            var authentication = await _authenticationRepository.GetByRefreshToken(entity);
+            var entity = new RefreshToken { Token = request.RefreshToken.ToString() };
+            var refreshTokenEntity = await _refreshTokenRepository.Get(entity);
+            if (refreshTokenEntity == null)
+            {
+                return ResponseBaseModel.BadRequest("Invalid credentials");
+            }
+
+            await _refreshTokenRepository.Remove(refreshTokenEntity);
+            if (DateTime.UtcNow > refreshTokenEntity.Expiration)
+            {
+                return ResponseBaseModel.BadRequest("Invalid credentials");
+            }
+
+            refreshTokenEntity = await _refreshTokenRepository.Create(refreshTokenEntity.AuthenticationId);
+            var authentication = await _authenticationRepository.GetById(refreshTokenEntity.AuthenticationId);
             if (authentication == null)
             {
                 return ResponseBaseModel.BadRequest("Invalid credentials");
             }
 
-            authentication = await _authenticationRepository.RefreshToken(authentication);
-            await _authenticationRepository.ClearCodeConfirmation(authentication);
+            await _authenticationRepository.ClearCodeConfirmation(new Authentication { Id = authentication.Id });
             var memberEntity = new Member
             {
                 Id = authentication.MemberId
@@ -244,7 +262,7 @@ namespace Polaris.Service
             {
                 Expire = TokenConfiguration.Expire * 60,
                 Token = token,
-                RefreshToken = authentication.RefreshToken!
+                RefreshToken = refreshTokenEntity.Token
             };
             return ResponseBaseModel.Ok(response);
         }
@@ -266,7 +284,7 @@ namespace Polaris.Service
 
             var authenticationEmailOnlyModel = new Authentication
             {
-                Id = entity.Id,
+                Id = entity!.Id,
                 Code = request.Code
             };
 

@@ -11,7 +11,7 @@ namespace Polaris.Test.Controller
     [TestClass]
     public class MemberControllerTest
     {
-        private Mock<IMemberService> _service;
+        private Mock<IMemberService> _service = new Mock<IMemberService>();
 
         [TestInitialize]
         public void Setup()

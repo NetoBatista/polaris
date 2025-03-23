@@ -8,8 +8,8 @@ namespace Polaris.Test.Repository
     [TestClass]
     public class ApplicationRepositoryTest
     {
-        private ApplicationRepository _repository;
-        private PolarisContext _context;
+        private ApplicationRepository _repository = new(new());
+        private PolarisContext _context = new();
 
         [TestInitialize]
         public void Setup()
