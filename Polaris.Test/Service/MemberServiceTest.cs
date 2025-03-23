@@ -12,10 +12,10 @@ namespace Polaris.Test.Service
     [TestClass]
     public class MemberServiceTest
     {
-        private Mock<IMemberRepository> _repository;
-        private Mock<IAuthenticationRepository> _authenticationRepository;
-        private Mock<IApplicationRepository> _applicationRepository;
-        private Mock<IUserRepository> _userRepository;
+        private Mock<IMemberRepository> _repository = new Mock<IMemberRepository>();
+        private Mock<IAuthenticationRepository> _authenticationRepository = new Mock<IAuthenticationRepository>();
+        private Mock<IApplicationRepository> _applicationRepository = new Mock<IApplicationRepository>();
+        private Mock<IUserRepository> _userRepository = new Mock<IUserRepository>();
 
         [TestInitialize]
         public void Setup()
@@ -242,7 +242,6 @@ namespace Polaris.Test.Service
                     AuthenticationNavigation = new Authentication
                     {
                         Id = authenticationId,
-                        RefreshToken = Guid.NewGuid().ToString()
                     },
                     UserNavigation = new User
                     {
@@ -286,7 +285,6 @@ namespace Polaris.Test.Service
                     AuthenticationNavigation = new Authentication
                     {
                         Id = authenticationId,
-                        RefreshToken = Guid.NewGuid().ToString()
                     },
                     UserNavigation = new User
                     {

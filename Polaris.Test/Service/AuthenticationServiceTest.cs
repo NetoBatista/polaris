@@ -15,10 +15,11 @@ namespace Polaris.Test.Service
     [TestClass]
     public class AuthenticationServiceTest
     {
-        private Mock<IAuthenticationRepository> _repository;
-        private Mock<IEventService> _eventService;
-        private Mock<IUserRepository> _userRepository;
-        private Mock<IMemberRepository> _memberRepository;
+        private Mock<IAuthenticationRepository> _repository = new Mock<IAuthenticationRepository>();
+        private Mock<IEventService> _eventService = new Mock<IEventService>();
+        private Mock<IUserRepository> _userRepository = new Mock<IUserRepository>();
+        private Mock<IMemberRepository> _memberRepository = new Mock<IMemberRepository>();
+        private Mock<IRefreshTokenRepository> _refreshTokenRepository = new Mock<IRefreshTokenRepository>();
 
         public AuthenticationServiceTest()
         {
@@ -44,6 +45,7 @@ namespace Polaris.Test.Service
             _eventService = new Mock<IEventService>();
             _memberRepository = new Mock<IMemberRepository>();
             _userRepository = new Mock<IUserRepository>();
+            _refreshTokenRepository = new Mock<IRefreshTokenRepository>();
         }
 
         [TestCleanup]
@@ -63,6 +65,7 @@ namespace Polaris.Test.Service
                                             _userRepository.Object,
                                             _memberRepository.Object,
                                             _eventService.Object,
+                                            _refreshTokenRepository.Object,
                                             authenticatorValidator,
                                             authenticatorFirebaseValidator,
                                             authenticatorGenerateCodeValidator,
@@ -85,7 +88,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -110,10 +112,10 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(true);
             _repository.Setup(x => x.AuthenticateCode(It.IsAny<Authentication>()))
                        .ReturnsAsync(true);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
-                       .ReturnsAsync(entity.MemberNavigation.UserNavigation);
+                           .ReturnsAsync(entity.MemberNavigation.UserNavigation);
+            _refreshTokenRepository.Setup(x => x.Create(It.IsAny<Guid>()))
+                                   .ReturnsAsync(new RefreshToken { Token = Guid.NewGuid().ToString() });
 
             var service = CreateService();
 
@@ -136,7 +138,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -159,10 +160,10 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(entity);
             _repository.Setup(x => x.AuthenticatePassword(It.IsAny<AuthenticationPasswordModel>()))
                        .ReturnsAsync(true);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
-                       .ReturnsAsync(entity.MemberNavigation.UserNavigation);
+                           .ReturnsAsync(entity.MemberNavigation.UserNavigation);
+            _refreshTokenRepository.Setup(x => x.Create(It.IsAny<Guid>()))
+                                   .ReturnsAsync(new RefreshToken { Token = Guid.NewGuid().ToString() });
 
             var service = CreateService();
 
@@ -185,7 +186,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -208,8 +208,6 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(entity);
             _repository.Setup(x => x.AuthenticatePassword(It.IsAny<AuthenticationPasswordModel>()))
                        .ReturnsAsync(false);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
                        .ReturnsAsync(entity.MemberNavigation.UserNavigation);
 
@@ -234,7 +232,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -259,8 +256,6 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(true);
             _repository.Setup(x => x.AuthenticateCode(It.IsAny<Authentication>()))
                        .ReturnsAsync(false);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
                        .ReturnsAsync(entity.MemberNavigation.UserNavigation);
 
@@ -285,7 +280,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -310,8 +304,6 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(false);
             _repository.Setup(x => x.AuthenticateCode(It.IsAny<Authentication>()))
                        .ReturnsAsync(true);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
                        .ReturnsAsync(entity.MemberNavigation.UserNavigation);
 
@@ -336,7 +328,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -360,8 +351,6 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(true);
             _repository.Setup(x => x.AuthenticateCode(It.IsAny<Authentication>()))
                        .ReturnsAsync(true);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
                        .ReturnsAsync(entity.MemberNavigation.UserNavigation);
 
@@ -386,7 +375,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -411,8 +399,6 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(true);
             _repository.Setup(x => x.AuthenticateCode(It.IsAny<Authentication>()))
                        .ReturnsAsync(true);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
                        .ReturnsAsync(entity.MemberNavigation.UserNavigation);
 
@@ -437,7 +423,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -462,8 +447,6 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(true);
             _repository.Setup(x => x.AuthenticateCode(It.IsAny<Authentication>()))
                        .ReturnsAsync(true);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
                        .ReturnsAsync(entity.MemberNavigation.UserNavigation);
 
@@ -488,7 +471,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -513,8 +495,6 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(true);
             _repository.Setup(x => x.AuthenticateCode(It.IsAny<Authentication>()))
                        .ReturnsAsync(true);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
                        .ReturnsAsync(entity.MemberNavigation.UserNavigation);
 
@@ -539,7 +519,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -564,8 +543,6 @@ namespace Polaris.Test.Service
                        .ReturnsAsync(true);
             _repository.Setup(x => x.AuthenticateCode(It.IsAny<Authentication>()))
                        .ReturnsAsync(true);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _userRepository.Setup(x => x.Get(It.IsAny<User>()))
                        .ReturnsAsync(entity.MemberNavigation.UserNavigation);
 
@@ -589,7 +566,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -707,10 +683,10 @@ namespace Polaris.Test.Service
 
             var memberId = Guid.NewGuid();
             var applicationId = Guid.NewGuid();
-            var userId = Guid.NewGuid(); var entity = new Authentication
+            var userId = Guid.NewGuid();
+            var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -730,11 +706,27 @@ namespace Polaris.Test.Service
                 }
             };
 
-            _repository.Setup(x => x.GetByRefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
+            var refreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                AuthenticationId = entity.Id,
+                Expiration = DateTime.UtcNow.AddDays(30),
+                Token = Guid.NewGuid().ToString()
+            };
+
+            _repository.Setup(x => x.GetById(It.IsAny<Guid>()))
                        .ReturnsAsync(entity);
             _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
+            _refreshTokenRepository.Setup(x => x.Remove(It.IsAny<RefreshToken>()));
+            _refreshTokenRepository.Setup(x => x.Get(It.IsAny<RefreshToken>()))
+                                   .ReturnsAsync(refreshToken);
+            _refreshTokenRepository.Setup(x => x.Create(It.IsAny<Guid>()))
+                                   .ReturnsAsync(new RefreshToken
+                                   {
+                                       Id = Guid.NewGuid(),
+                                       Token = Guid.NewGuid().ToString(),
+                                       AuthenticationId = entity.Id,
+                                   });
             _memberRepository.Setup(x => x.Get(It.IsAny<Member>()))
                              .ReturnsAsync([entity.MemberNavigation]);
 
@@ -757,7 +749,6 @@ namespace Polaris.Test.Service
             var userId = Guid.NewGuid(); var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -777,9 +768,6 @@ namespace Polaris.Test.Service
                 }
             };
 
-            _repository.Setup(x => x.GetByRefreshToken(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()))
-                       .ReturnsAsync(entity);
             _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
             _memberRepository.Setup(x => x.Get(It.IsAny<Member>()))
                              .ReturnsAsync([entity.MemberNavigation]);
@@ -798,9 +786,6 @@ namespace Polaris.Test.Service
                 RefreshToken = Guid.Empty
             };
 
-            _repository.Setup(x => x.GetByRefreshToken(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.RefreshToken(It.IsAny<Authentication>()));
-            _repository.Setup(x => x.ClearCodeConfirmation(It.IsAny<Authentication>()));
             _memberRepository.Setup(x => x.Get(It.IsAny<Member>()));
 
             var service = CreateService();
@@ -826,7 +811,6 @@ namespace Polaris.Test.Service
             {
                 Id = Guid.NewGuid(),
                 Password = CryptographyUtil.ConvertToMD5("123456"),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -875,7 +859,6 @@ namespace Polaris.Test.Service
             {
                 Id = Guid.NewGuid(),
                 Password = CryptographyUtil.ConvertToMD5("123456"),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -922,7 +905,6 @@ namespace Polaris.Test.Service
             {
                 Id = Guid.NewGuid(),
                 Password = CryptographyUtil.ConvertToMD5("123456"),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -969,7 +951,6 @@ namespace Polaris.Test.Service
             {
                 Id = Guid.NewGuid(),
                 Password = CryptographyUtil.ConvertToMD5("12345678"),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -1016,7 +997,6 @@ namespace Polaris.Test.Service
             {
                 Id = Guid.NewGuid(),
                 Password = CryptographyUtil.ConvertToMD5("123456"),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -1063,7 +1043,6 @@ namespace Polaris.Test.Service
             {
                 Id = Guid.NewGuid(),
                 Password = CryptographyUtil.ConvertToMD5("123456"),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,
@@ -1109,7 +1088,6 @@ namespace Polaris.Test.Service
             var entity = new Authentication
             {
                 Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
                 MemberNavigation = new Member
                 {
                     Id = memberId,

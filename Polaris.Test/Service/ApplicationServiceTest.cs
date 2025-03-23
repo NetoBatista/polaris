@@ -11,7 +11,7 @@ namespace Polaris.Test.Service
     [TestClass]
     public class ApplicationServiceTest
     {
-        private Mock<IApplicationRepository> _repository;
+        private Mock<IApplicationRepository> _repository = new Mock<IApplicationRepository>();
 
         [TestInitialize]
         public void Setup()

@@ -10,8 +10,8 @@ namespace Polaris.Test.Repository
     [TestClass]
     public class AuthenticationRepositoryTest
     {
-        private AuthenticationRepository _repository;
-        private PolarisContext _context;
+        private AuthenticationRepository _repository = new(new());
+        private PolarisContext _context = new();
 
         [TestInitialize]
         public void Setup()
@@ -222,52 +222,6 @@ namespace Polaris.Test.Repository
             var response = await _repository.GetByEmailApplication(requestModel);
             Assert.IsNull(response);
         }
-
-        [TestMethod("Should be able get by refresh token")]
-        public async Task GetByRefreshToken()
-        {
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
-            };
-            _context.Authentication.Add(entity);
-            await _context.SaveChangesAsync();
-
-            var response = await _repository.GetByRefreshToken(entity);
-            Assert.IsNotNull(response);
-        }
-
-        [TestMethod("Should not be able get by refresh token")]
-        public async Task NotGetByRefreshToken()
-        {
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                RefreshToken = Guid.NewGuid().ToString(),
-            };
-            _context.Authentication.Add(entity);
-            await _context.SaveChangesAsync();
-            entity.RefreshToken = Guid.NewGuid().ToString();
-            var response = await _repository.GetByRefreshToken(entity);
-            Assert.IsNull(response);
-        }
-
-        [TestMethod("Should be able refresh token")]
-        public async Task RefreshToken()
-        {
-            var refreshToken = Guid.NewGuid().ToString();
-            var entity = new Authentication
-            {
-                Id = Guid.NewGuid(),
-                RefreshToken = refreshToken,
-            };
-            _context.Authentication.Add(entity);
-            await _context.SaveChangesAsync();
-            var response = await _repository.RefreshToken(entity);
-            Assert.AreNotEqual(response.RefreshToken, refreshToken);
-        }
-
         [TestMethod("Should be able generate code")]
         public async Task GenerateCode()
         {

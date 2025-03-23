@@ -13,8 +13,6 @@ namespace Polaris.Domain.Dto.Member
     {
         public Guid MemberId { get; set; }
 
-        public string Auth { get; set; } = null!;
-
         public string Email { get; set; } = null!;
     }
 }

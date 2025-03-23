@@ -43,6 +43,7 @@ namespace Polaris.Configuration
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IMemberRepository, MemberRepository>();
             services.AddTransient<IAuthenticationRepository, AuthenticationRepository>();
+            services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
         }
 
         private static void InjectServices(IServiceCollection services)
